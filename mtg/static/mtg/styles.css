@@ -1,0 +1,45 @@
+/* Login Page Background */
+body.login-page {
+    background-image: url("img/welcome_valhalla.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+body.register-page {
+    background-image: url("img/road_valhalla.jpg"); /* Update with the correct static path */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+/* Form Container Styling */
+.form-container {
+    background-color: rgba(0, 0, 0, 0.75); /* Semi-transparent dark background */
+    border-radius: 10px;
+    max-width: 400px;
+    width: 100%;
+    color: white;
+}
+
+h2 {
+    color: white;
+}
+
+/* Button Hover Effect */
+.btn-primary:hover {
+    background-color: #0056b3;
+    color: white;
+}
+
+p a {
+    color: #007bff;
+    font-weight: bold;
+}
+
+p a:hover {
+    text-decoration: underline;
+    font-weight: bold;
+}
