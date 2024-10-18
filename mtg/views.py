@@ -3,10 +3,13 @@ from sqlite3 import IntegrityError
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 
 from django.shortcuts import render
 from django.urls import reverse
+
+
+from .models import User, Deck
 
 
 # Create your views here.
@@ -21,12 +24,19 @@ def index(request):
 
 def login_view(request):
     if request.method == "POST":
-        email = request.POST["email"]
+        name_or_email = request.POST["name_or_email"]
         password = request.POST["password"]
 
-        user = authenticate(request, email=email, password=password)
+        try:
+            user = User.objects.get(username=name_or_email.capitalize())
+        except User.DoesNotExist:
+            try:
+                user = User.objects.get(email=name_or_email)
+            except User.DoesNotExist:
+                user = None
 
-        if user is not None:
+        if user:
+            user = authenticate(request, username=user.username, password=password)
             login(request, user)
             return HttpResponseRedirect(reverse("mtg:index"))
         else:
@@ -44,6 +54,7 @@ def logout_view(request):
 
 def register(request):
     if request.method == "POST":
+        name = request.POST["name"]
         email = request.POST["email"]
 
         password = request.POST["password"]
@@ -55,7 +66,7 @@ def register(request):
             })
 
         try:
-            user = User.objects.create_user(email, email, password)
+            user = User.objects.create_user(name, email, password)
             user.save()
         except IntegrityError:
             return render(request, "mtg/register.html", {
@@ -65,3 +76,10 @@ def register(request):
         return HttpResponseRedirect(reverse("mtg:index"))
     else:
         return render(request, "mtg/register.html")
+
+
+def get_decks(request, category=None):
+    #if not category:
+    decks = Deck.objects.all()
+
+    return JsonResponse([deck.serialize() for deck in decks], safe=False)

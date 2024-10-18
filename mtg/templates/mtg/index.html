@@ -2,9 +2,72 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>MTG - Results</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <link rel="stylesheet" href="/static/mtg/styles.css">
 </head>
 <body>
+    <div id="App"></div>
+    <script type="text/babel">
+
+        const RenderNavbar = ({handleView}) => {
+            return (
+                <div className="navbar">
+                    <button className="btn btn-sm btn-outline-primary" onClick={() => handleView("home")}>Home</button>
+                    <button className="btn btn-sm btn-outline-primary" onClick={() => handleView("stats")}>My Stats</button>
+                    <button className="btn btn-sm btn-outline-primary" onClick={() => handleView("decks")}>Best Decks</button>
+                    <button className="btn btn-sm btn-outline-primary" onClick={() => handleView("chart")}>Chart</button>
+                    <a className="btn btn-sm btn-outline-primary" href="/logout">Log Out</a>
+                    <hr/>
+                </div>
+            );
+        };
+
+        function App() {
+            const [currentView, setCurrentView] = React.useState("home");
+            const [category, setCategory] = React.useState(null);
+
+            const handleView = (view) => {
+                setCurrentView(view)
+            }
+            return (
+                <div>
+                    {/* NavBar */}
+                    <RenderNavbar handleView={handleView} />
+                    <hr />
+
+                    {/* View */}
+
+                </div>
+            );
+        };
+
+        function fetchDecks(category) {
+            const [decks, setDecks] = React.useState([]);
+
+            React.useEffect(() => {
+                fetch(`/decks/${category}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok")
+                        }
+                        return response.json()
+                    })
+                    .then(data => {
+                        console.log(data);
+                        setDecks(data)
+                    })
+                    .catch(error => console.error("There was a problem while fetching", error));
+            }, [category]);
+            return decks
+        }
+
+    ReactDOM.render(<App />, document.querySelector("#App"));
+
+    </script>
 
 </body>
 </html>
