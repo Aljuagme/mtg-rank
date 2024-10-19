@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.db import models
 
 # Create your models here.
@@ -24,11 +25,10 @@ class Deck(models.Model):
 
 
     def update_stats(self):
-        self.wins_count = Match.objects.filter(winner=self).count()
-        self.losses_count = Match.objects.filter(
-            models.Q(deck1=self) | models.Q(deck2=self), ~models.Q(winner=self)
-        ).count()
-        self.total_matches_count = self.matches_as_deck1.count() + self.matches_as_deck2.count()
+        matches = Match.objects.filter(models.Q(deck1=self) | models.Q(deck2=self))
+        self.wins_count = matches.filter(winner=self).count()
+        self.losses_count = matches.exclude(winner=self).count() - matches.filter(winner=None).count()
+        self.total_matches_count = matches.count()
         # self.total_matches_count = Match.objects.filter(models.Q(deck1=self) | models.Q(deck2=self)).count()
         self.save()
 
@@ -45,7 +45,11 @@ class Deck(models.Model):
             "losses": self.losses_count,
             "total_matches": self.total_matches_count,
             "win_ratio": self.win_ratio(),
-            "rivals": [rival.id for rival in self.get_rivals()]
+            "rivals": [{
+                "id": rival.id,
+                "name": rival.name,
+                "stats": self.stats_vs_rival(rival)
+            } for rival in self.get_rivals()]
         }
 
     def get_rivals(self):
@@ -60,10 +64,15 @@ class Deck(models.Model):
         )
         total = matches.count()
         wins = matches.filter(winner=self).count()
-        losses = (total - wins) / total
+        losses = matches.filter(winner=rival).count()
+        draws = total - wins - losses
         return {"wins": wins,
-                "losses": losses
+                "losses": losses,
+                "draws": draws,
+                "total": total,
+                "win_ratio": self.win_ratio(),
                 }
+
 
     def __str__(self):
         return f" {self.id} - {self.name}: {self.get_category_display()}"
@@ -71,15 +80,51 @@ class Deck(models.Model):
 
 
 class Match(models.Model):
+    class Result(models.TextChoices):
+        ABSOLUTE_WIN = "AW", "2-0"
+        WIN = "WN", "2-1"
+        DRAW = "DW", "1-1"
+        LOSS = "LS", "1-2"
+        ABSOLUTE_LOSS = "AL", "0-2"
+
+    class Meta:
+        ordering = ("-date_played", )
+
     deck1 = models.ForeignKey(Deck, on_delete=models.CASCADE, related_name='matches_as_deck1')
     deck2 = models.ForeignKey(Deck, on_delete=models.CASCADE, related_name='matches_as_deck2')
-    winner = models.ForeignKey(Deck, on_delete=models.CASCADE, related_name='matches_won')
+    winner = models.ForeignKey(Deck, on_delete=models.CASCADE, related_name='matches_won', blank=True, null=True)
+    result = models.CharField(choices=Result.choices, default=Result.ABSOLUTE_WIN, max_length=2)
     date_played = models.DateTimeField(auto_now_add=True)
 
-    def save(self, *args, **kwargs):
-        # Prevent deck from playing against itself
+    def clean(self):
+        """
+         Ensure that:
+         - A deck cannot play against itself.
+         - The winner corresponds with the result.
+         """
         if self.deck1 == self.deck2:
-            raise ValueError("A deck cannot compete against itself.")
+            raise ValidationError("A deck cannot compete against itself.")
+
+        # If result is not DRAW, winner must be either deck1 or deck2 based on result
+        if self.result == self.Result.DRAW:
+            if self.winner is not None:
+                raise ValidationError("There must be no winner for a draw.")
+        elif self.result in [self.Result.ABSOLUTE_WIN, self.Result.WIN] and self.winner != self.deck1:
+            raise ValidationError("Deck1 must be the winner for result 2-0 or 2-1.")
+        elif self.result in [self.Result.ABSOLUTE_LOSS, self.Result.LOSS] and self.winner != self.deck2:
+            raise ValidationError("Deck2 must be the winner for result 0-2 or 1-2.")
+
+
+    def save(self, *args, **kwargs):
+        if self.result in [self.Result.ABSOLUTE_WIN, self.Result.WIN]:
+            self.winner = self.deck1
+        elif self.result in [self.Result.ABSOLUTE_LOSS, self.Result.LOSS]:
+            self.winner = self.deck2 # Deck1 wins with 2-1
+        elif self.result == self.Result.DRAW:
+            self.winner = None
+
+        self.clean()
+
         super().save(*args, **kwargs) # We modify the save() to check the equality of decks. That's why super(), to call the father save.
 
         # Update stats for both decks
@@ -94,8 +139,17 @@ class Match(models.Model):
         self.deck2.update_stats()
 
     def __str__(self):
-        return f"{self.deck1.name} vs {self.deck2.name}. |-> Winner: {self.winner.name}"
+        return f"{self.deck1.name} vs {self.deck2.name}. |-> Winner: {self.winner.name if self.winner else 'Draw'}"
 
+    def serialize(self):
+        return {
+            "id": self.id,
+            "deck1": self.deck1.serialize(),
+            "deck2": self.deck2.serialize(),
+            "date_played": self.date_played.date(),
+            "winner": self.winner.name if self.winner else None,
+            "result": self.get_result_display(),
+        }
 
 class HeadToHead(models.Model):
     deck1 = models.ForeignKey(Deck, on_delete=models.CASCADE, related_name='head_to_head_as_deck1')

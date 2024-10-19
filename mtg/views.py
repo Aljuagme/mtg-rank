@@ -5,14 +5,15 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect, JsonResponse
 
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 
 
-from .models import User, Deck
+from .models import User, Deck, Match
 
 
 # Create your views here.
+@login_required
 def index(request):
     if request.user.is_authenticated:
         return render(request, "mtg/index.html", {
@@ -78,8 +79,23 @@ def register(request):
         return render(request, "mtg/register.html")
 
 
-def get_decks(request, category=None):
-    #if not category:
+def get_decks(request):
     decks = Deck.objects.all()
-
     return JsonResponse([deck.serialize() for deck in decks], safe=False)
+
+
+def get_decks_by_user(request, user_id=False):
+    user = get_object_or_404(User, pk=user_id)
+    decks = Deck.objects.filter(user=user)
+    return JsonResponse([deck.serialize() for deck in decks], safe=False)
+
+
+def get_results(request):
+    matchs = Match.objects.all()
+    return JsonResponse([match.serialize() for match in matchs], safe=False)
+
+
+def get_results_by_user(request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+    matchs = Match.objects.filter(user=user)
+    return JsonResponse([match.serialize() for match in matchs], safe=False)

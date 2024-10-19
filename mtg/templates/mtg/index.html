@@ -28,10 +28,12 @@
 
         function App() {
             const [currentView, setCurrentView] = React.useState("home");
-            const [category, setCategory] = React.useState(null);
+            const [category, setCategory] = React.useState("all");
+            const [selectedDeck, setSelectedDeck] = React.useState(null);
 
             const handleView = (view) => {
                 setCurrentView(view)
+                setSelectedDeck(null)
             }
             return (
                 <div>
@@ -40,16 +42,100 @@
                     <hr />
 
                     {/* View */}
-
+                    {selectedDeck ? (
+                        <RenderDeck selectedDeck={selectedDeck} />
+                    ) :  (
+                        <RenderResults category={category} setSelectedDeck={setSelectedDeck} />
+                    )}
                 </div>
             );
         };
 
-        function fetchDecks(category) {
+        const RenderResults = ({setSelectedDeck}) => {
+            const results = fetchResults();
+            const handleDeckClick = (deck) => {
+                console.log(deck)
+                setSelectedDeck(deck)
+            }
+
+            return (
+                <div>
+                    <table className="table">
+                        <thead className="table-light">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Deck1</th>
+                                <th scope="col">Result</th>
+                                <th scope="col">Deck2</th>
+                                <th scope="col">Datetime</th>
+                            </tr>
+                        </thead>
+                        <tbody className="table-group-divider">
+                            {results.length > 0 && results.map (
+                                (match, index) => (
+                                    <tr>
+                                        <th scope="row">{index+1}</th>
+                                        <td onClick={() => handleDeckClick(match.deck1)}>{match.deck1.name}</td>
+                                        <td>{match.result}</td>
+                                        <td onClick={() => handleDeckClick(match.deck2)}>{match.deck2.name}</td>
+                                        <td>{match.date_played}</td>
+                                    </tr>
+                                )
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            )
+        }
+
+        const RenderDeck = ({selectedDeck}) => {
+            if (!selectedDeck || !selectedDeck.rivals) {
+                console.log(selectedDeck)
+                return <div>No data available for this deck.</div>;
+            }
+            const rivals = selectedDeck.rivals
+            return (
+                <div>
+                    <h3>Deck: {selectedDeck.name}</h3>
+                    <table className="table">
+                        <thead className="table-light">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Rival</th>
+                                <th scope="col">Total Matches</th>
+                                <th scope="col">Victories</th>
+                                <th scope="col">Defeats</th>
+                                <th scope="col">Draws</th>
+                                <th scope="col">Win Ratio</th>
+                            </tr>
+                        </thead>
+                        <tbody className="table-group-divider">
+                            {rivals.map (
+                                (rival, index) => (
+                                    <tr>
+                                        <th scope="row">{index+1}</th>
+                                        <td>{rival.name}</td>
+                                        <td>{rival.stats.total}</td>
+                                        <td>{rival.stats.wins}</td>
+                                        <td>{rival.stats.losses}</td>
+                                        <td>{rival.stats.draws}</td>
+                                        <td>{(rival.stats.win_ratio * 100).toFixed(2)}%</td>
+                                    </tr>
+                                )
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            )
+        }
+
+        function fetchDecks(user_id) {
             const [decks, setDecks] = React.useState([]);
 
+            const url = user_id ? `/get_decks/${user_id}` : `/get_decks`
+
             React.useEffect(() => {
-                fetch(`/decks/${category}`)
+                fetch(url)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error("Network response was not ok")
@@ -61,8 +147,30 @@
                         setDecks(data)
                     })
                     .catch(error => console.error("There was a problem while fetching", error));
-            }, [category]);
+            }, [user_id]);
             return decks
+        }
+
+        function fetchResults(user_id) {
+            const [results, setResults] = React.useState([]);
+
+            const url = user_id ? `/get_results/${user_id}` : `/get_results`
+
+            React.useEffect(() => {
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok")
+                        }
+                        return response.json()
+                    })
+                    .then(data => {
+                        console.log(data);
+                        setResults(data)
+                    })
+                    .catch(error => console.error("There was a problem while fetching", error));
+            }, [user_id]);
+            return results
         }
 
     ReactDOM.render(<App />, document.querySelector("#App"));

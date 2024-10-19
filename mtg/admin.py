@@ -16,6 +16,10 @@ class DeckAdmin(admin.ModelAdmin):
     list_display = ["name", "category", "user", "wins_count", "total_matches_count"]
     search_fields = ["name", "user__username"]
 
+class MatchAdmin(admin.ModelAdmin):
+    list_display = ["deck1", "result", "deck2", "winner"]
+
+
 admin.site.register(User, UserAdmin)
 admin.site.register(Deck, DeckAdmin)
-admin.site.register(Match)
+admin.site.register(Match, MatchAdmin)
