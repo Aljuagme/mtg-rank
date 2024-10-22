@@ -43,7 +43,10 @@
 
                     {/* View */}
                     {selectedDeck ? (
-                        <RenderDeck selectedDeck={selectedDeck} />
+                        <RenderDeck
+                            selectedDeck={selectedDeck}
+                            setSelectedDeck={setSelectedDeck}
+                        />
                     ) :  (
                         <RenderResults category={category} setSelectedDeck={setSelectedDeck} />
                     )}
@@ -51,12 +54,34 @@
             );
         };
 
-        const RenderResults = ({setSelectedDeck}) => {
-            const results = fetchResults();
-            const handleDeckClick = (deck) => {
-                console.log(deck)
-                setSelectedDeck(deck)
-            }
+        const RenderResults = ({ setSelectedDeck }) => {
+            const [results, setResults] = React.useState([]);
+
+            React.useEffect(() => {
+                console.time("fetch deck data");
+
+                const url = `/get_results`;
+
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log(data);
+                        setResults(data);
+                    })
+                    .catch(error => console.error("There was a problem while fetching results", error))
+                    .finally(() => {
+                        console.timeEnd("fetch deck data");
+            });
+            }, []); // Empty array means this effect runs only once after the initial render
+
+            const handleDeckClick = (deckId) => {
+                setSelectedDeck({ id: deckId });
+            };
 
             return (
                 <div>
@@ -71,37 +96,68 @@
                             </tr>
                         </thead>
                         <tbody className="table-group-divider">
-                            {results.length > 0 && results.map (
-                                (match, index) => (
-                                    <tr>
-                                        <th scope="row">{index+1}</th>
-                                        <td onClick={() => handleDeckClick(match.deck1)}>{match.deck1.name}</td>
-                                        <td>{match.result}</td>
-                                        <td onClick={() => handleDeckClick(match.deck2)}>{match.deck2.name}</td>
-                                        <td>{match.date_played}</td>
-                                    </tr>
-                                )
-                            )}
+                            {results.length > 0 && results.map((match, index) => (
+                                <tr key={index}>
+                                    <th scope="row">{index + 1}</th>
+                                    <td onClick={() => handleDeckClick(match.deck1.id)}>{match.deck1.name}</td>
+                                    <td>{match.result}</td>
+                                    <td onClick={() => handleDeckClick(match.deck2.id)}>{match.deck2.name}</td>
+                                    <td>{match.date_played}</td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>
-            )
-        }
+            );
+        };
 
-        const RenderDeck = ({selectedDeck}) => {
-            if (!selectedDeck || !selectedDeck.rivals) {
-                console.log(selectedDeck)
+        const RenderDeck = ({ selectedDeck, setSelectedDeck }) => {
+            const [deck, setDeck] = React.useState(null);  // Move useState here
+            const deckId = selectedDeck && selectedDeck.id;
+
+            React.useEffect(() => {
+                if (deckId) {
+                    const url = `/get_deck/${deckId}`;
+
+                    fetch(url)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error("Network response was not ok");
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log(data);
+                            setDeck(data);
+                        })
+                        .catch(error => console.error(`There was a problem while fetching deck with ID: ${deckId}`, error));
+                }
+            }, [deckId]); // Only re-run the effect if deckId changes
+
+            if (!deck || !deck.rivals) {
                 return <div>No data available for this deck.</div>;
             }
-            const rivals = selectedDeck.rivals
+
+            const rivals = deck.rivals;
+
+            const handleRivalDeckClick = (rivalId) => {
+                console.log(rivalId);
+                setSelectedDeck({ id: rivalId });
+            };
+
+            const handleRivalOwnerClick = (rivalOwnerId) => {
+                console.log(rivalOwnerId);
+            };
+
             return (
                 <div>
-                    <h3>Deck: {selectedDeck.name}</h3>
+                    <h3>{deck.category} - {deck.name}. Win Ratio: {deck.win_ratio}%</h3>
                     <table className="table">
                         <thead className="table-light">
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Rival</th>
+                                <th scope="col">Owner</th>
                                 <th scope="col">Total Matches</th>
                                 <th scope="col">Victories</th>
                                 <th scope="col">Defeats</th>
@@ -110,68 +166,24 @@
                             </tr>
                         </thead>
                         <tbody className="table-group-divider">
-                            {rivals.map (
-                                (rival, index) => (
-                                    <tr>
-                                        <th scope="row">{index+1}</th>
-                                        <td>{rival.name}</td>
-                                        <td>{rival.stats.total}</td>
-                                        <td>{rival.stats.wins}</td>
-                                        <td>{rival.stats.losses}</td>
-                                        <td>{rival.stats.draws}</td>
-                                        <td>{(rival.stats.win_ratio * 100).toFixed(2)}%</td>
-                                    </tr>
-                                )
-                            )}
+                            {rivals.map((rival, index) => (
+                                <tr key={rival.id}>
+                                    <th scope="row">{index + 1}</th>
+                                    <td onClick={() => handleRivalDeckClick(rival.id)}>{rival.name}</td>
+                                    <td onClick={() => handleRivalOwnerClick(rival.owner.id)}>{rival.owner.username}</td>
+                                    <td>{rival.stats.total}</td>
+                                    <td>{rival.stats.wins}</td>
+                                    <td>{rival.stats.losses}</td>
+                                    <td>{rival.stats.draws}</td>
+                                    <td>{rival.stats.win_ratio}%</td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>
-            )
-        }
+            );
+        };
 
-        function fetchDecks(user_id) {
-            const [decks, setDecks] = React.useState([]);
-
-            const url = user_id ? `/get_decks/${user_id}` : `/get_decks`
-
-            React.useEffect(() => {
-                fetch(url)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error("Network response was not ok")
-                        }
-                        return response.json()
-                    })
-                    .then(data => {
-                        console.log(data);
-                        setDecks(data)
-                    })
-                    .catch(error => console.error("There was a problem while fetching", error));
-            }, [user_id]);
-            return decks
-        }
-
-        function fetchResults(user_id) {
-            const [results, setResults] = React.useState([]);
-
-            const url = user_id ? `/get_results/${user_id}` : `/get_results`
-
-            React.useEffect(() => {
-                fetch(url)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error("Network response was not ok")
-                        }
-                        return response.json()
-                    })
-                    .then(data => {
-                        console.log(data);
-                        setResults(data)
-                    })
-                    .catch(error => console.error("There was a problem while fetching", error));
-            }, [user_id]);
-            return results
-        }
 
     ReactDOM.render(<App />, document.querySelector("#App"));
 

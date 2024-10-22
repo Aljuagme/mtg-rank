@@ -13,7 +13,6 @@ from .models import User, Deck, Match
 
 
 # Create your views here.
-@login_required
 def index(request):
     if request.user.is_authenticated:
         return render(request, "mtg/index.html", {
@@ -79,22 +78,30 @@ def register(request):
         return render(request, "mtg/register.html")
 
 
+@login_required
 def get_decks(request):
     decks = Deck.objects.all()
     return JsonResponse([deck.serialize() for deck in decks], safe=False)
 
 
-def get_decks_by_user(request, user_id=False):
+@login_required
+def get_deck_by_id(request, deck_id):
+    deck = get_object_or_404(Deck, pk=deck_id)
+    return JsonResponse(deck.serialize(), safe=False)
+
+
+@login_required
+def get_decks_by_user(request, user_id):
     user = get_object_or_404(User, pk=user_id)
     decks = Deck.objects.filter(user=user)
     return JsonResponse([deck.serialize() for deck in decks], safe=False)
 
-
+@login_required
 def get_results(request):
     matchs = Match.objects.all()
     return JsonResponse([match.serialize() for match in matchs], safe=False)
 
-
+@login_required
 def get_results_by_user(request, user_id):
     user = get_object_or_404(User, pk=user_id)
     matchs = Match.objects.filter(user=user)

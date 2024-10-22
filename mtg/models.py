@@ -34,13 +34,13 @@ class Deck(models.Model):
 
     def win_ratio(self):
         total = self.total_matches_count
-        return 0 if total == 0 else self.wins_count / self.total_matches_count
+        return 0 if total == 0 else round((self.wins_count / self.total_matches_count) * 100, 1)
 
     def serialize(self):
         return {
             "id": self.id,
             "name": self.name,
-            "category": self.category,
+            "category": self.get_category_display(),
             "wins": self.wins_count,
             "losses": self.losses_count,
             "total_matches": self.total_matches_count,
@@ -48,6 +48,10 @@ class Deck(models.Model):
             "rivals": [{
                 "id": rival.id,
                 "name": rival.name,
+                "owner": {
+                    "id": rival.user.id,
+                    "username": rival.user.username,
+                },
                 "stats": self.stats_vs_rival(rival)
             } for rival in self.get_rivals()]
         }
@@ -66,12 +70,14 @@ class Deck(models.Model):
         wins = matches.filter(winner=self).count()
         losses = matches.filter(winner=rival).count()
         draws = total - wins - losses
-        return {"wins": wins,
-                "losses": losses,
-                "draws": draws,
-                "total": total,
-                "win_ratio": self.win_ratio(),
-                }
+        return {
+            "wins": wins,
+            "losses": losses,
+            "draws": draws,
+            "total": total,
+            "win_ratio": 0 if total==0 else round((wins / total) * 100, 1),
+            "category": self.get_category_display()
+        }
 
 
     def __str__(self):
@@ -150,10 +156,6 @@ class Match(models.Model):
             "winner": self.winner.name if self.winner else None,
             "result": self.get_result_display(),
         }
-
-class HeadToHead(models.Model):
-    deck1 = models.ForeignKey(Deck, on_delete=models.CASCADE, related_name='head_to_head_as_deck1')
-    deck2 = models.ForeignKey(Deck, on_delete=models.CASCADE, related_name='head_to_head_as_deck2')
 
 
 
