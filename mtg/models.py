@@ -4,7 +4,36 @@ from django.db import models
 
 # Create your models here.
 class User(AbstractUser):
-    pass
+
+    def total_played(self):
+        count = 0
+        for deck in self.decks.all():
+            matches = Match.objects.filter(models.Q(deck1=deck) | models.Q(deck2=deck))
+            count += matches.count()
+        return count
+
+    def wins(self):
+        if self.decks.count() != 0:
+            wins = sum([deck.wins_count for deck in self.decks.all()])
+            return wins
+        return 0
+
+
+    def win_ratio(self):
+        if self.decks.count() != 0:
+            total_win_ratio = sum([deck.win_ratio() for deck in self.decks.all()])
+            avg_win_ratio = total_win_ratio / self.decks.count()
+            return avg_win_ratio
+        return 0
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "total_matches": self.total_played(),
+            "wins": self.wins(),
+            "win_ratio": self.win_ratio()
+        }
 
 
 class Deck(models.Model):
@@ -40,6 +69,7 @@ class Deck(models.Model):
         return {
             "id": self.id,
             "name": self.name,
+            "owner": self.user.username,
             "category": self.get_category_display(),
             "wins": self.wins_count,
             "losses": self.losses_count,
@@ -81,7 +111,7 @@ class Deck(models.Model):
 
 
     def __str__(self):
-        return f" {self.id} - {self.name}: {self.get_category_display()}"
+        return f" {self.id} - {self.name}: {self.get_category_display()}. Win-Ratio: {self.win_ratio()}"
 
 
 

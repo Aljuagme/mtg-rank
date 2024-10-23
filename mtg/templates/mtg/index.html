@@ -9,7 +9,7 @@
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
     <link rel="stylesheet" href="/static/mtg/styles.css">
 </head>
-<body>
+<body class="index-page">
     <div id="App"></div>
     <script type="text/babel">
 
@@ -56,6 +56,8 @@
 
         const RenderResults = ({ setSelectedDeck }) => {
             const [results, setResults] = React.useState([]);
+            const [bestDeck, setBestDeck] = React.useState([]);
+            const [bestPlayer, setBestPlayer] = React.useState([]);
 
             React.useEffect(() => {
                 console.time("fetch deck data");
@@ -71,7 +73,10 @@
                     })
                     .then(data => {
                         console.log(data);
-                        setResults(data);
+                        setResults(data["matches"]);
+                        setBestDeck(data["best_deck"]);
+                        setBestPlayer(data["best_player"]);
+                        console.log(bestDeck)
                     })
                     .catch(error => console.error("There was a problem while fetching results", error))
                     .finally(() => {
@@ -106,6 +111,37 @@
                                 </tr>
                             ))}
                         </tbody>
+                    </table>
+
+                    <table className="table">
+                        <tr>
+                            <th scope="col">Best Player</th>
+                            <th scope="col">Victories</th>
+                            <th scope="col">Matches Played</th>
+                            <th scope="col">Win Ratio</th>
+                        </tr>
+                        <tr>
+                            <td>{bestPlayer.username}</td>
+                            <td>{bestPlayer.wins}</td>
+                            <td>{bestPlayer.total_matches}</td>
+                            <td>{bestPlayer.win_ratio}%</td>
+                        </tr>
+                    </table>
+                    <table className="table">
+                        <tr>
+                            <th scope="col">Best Deck</th>
+                            <th scope="col">Owner</th>
+                            <th scope="col">Victories</th>
+                            <th scope="col">Matches Played</th>
+                            <th scope="col">Win Ratio</th>
+                        </tr>
+                        <tr>
+                            <td>{bestDeck.name}</td>
+                            <td>{bestDeck.owner}</td>
+                            <td>{bestDeck.wins}</td>
+                            <td>{bestDeck.total_matches}</td>
+                            <td>{bestDeck.win_ratio}%</td>
+                        </tr>
                     </table>
                 </div>
             );

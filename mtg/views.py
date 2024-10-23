@@ -98,11 +98,63 @@ def get_decks_by_user(request, user_id):
 
 @login_required
 def get_results(request):
-    matchs = Match.objects.all()
-    return JsonResponse([match.serialize() for match in matchs], safe=False)
+    matches = Match.objects.all()
+    match_data = [match.serialize() for match in matches]
+
+    best_player = get_best_n_players(request, n=1)
+
+    best_player_data = best_player[0].serialize() if best_player else {}
+    print("Get results DATA: ", best_player_data)
+
+    best_deck = get_best_n_decks(request, n=1)
+    print(f"Serializing deck: {best_deck[0].name}, User: {best_deck[0].user}")
+    best_deck_data = best_deck[0].serialize() if best_deck else {}
+    print("Get results DATA DECK", best_deck_data)
+
+    return JsonResponse({
+        "matches": match_data,
+        "best_player": best_player_data,
+        "best_deck": best_deck_data,
+        }, safe=False)
 
 @login_required
 def get_results_by_user(request, user_id):
     user = get_object_or_404(User, pk=user_id)
-    matchs = Match.objects.filter(user=user)
-    return JsonResponse([match.serialize() for match in matchs], safe=False)
+    matches = Match.objects.filter(user=user)
+    return JsonResponse([match.serialize() for match in matches], safe=False)
+
+
+
+def get_best_n_decks(request, n=1, user_id=None):
+    # best_deck = Deck.objects.order_by('-wins_count').first()
+    decks = Deck.objects.filter(user=user_id) if user_id else Deck.objects.all()
+    sorted_decks = sorted(decks, key=lambda deck: (deck.win_ratio(), deck.total_matches_count), reverse=True)
+    best_decks = sorted_decks[:n]
+    return best_decks
+
+
+def get_best_n_players(request, n=1):
+
+    players = User.objects.all()
+    player_avg_win_ratio = []
+
+    for player in players:
+        player_avg_win_ratio.append((player, player.win_ratio()))
+
+    sorted_players = sorted(player_avg_win_ratio, key=lambda x: x[1], reverse=True)
+
+    for player, avg_win_ratio in sorted_players:
+        print(f"Player: {player.username}, Average Win Ratio: {avg_win_ratio}")
+
+    best_n_players = [player[0] for player in sorted_players[:n]]
+
+    print(best_n_players)
+    print(type(best_n_players))
+
+    return best_n_players
+
+
+
+
+
+
