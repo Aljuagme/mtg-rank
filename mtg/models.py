@@ -69,6 +69,7 @@ class Deck(models.Model):
         return {
             "id": self.id,
             "name": self.name,
+            "ownerId": self.user.id,
             "owner": self.user.username,
             "category": self.get_category_display(),
             "wins": self.wins_count,

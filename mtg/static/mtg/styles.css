@@ -15,6 +15,18 @@ body.register-page {
     background-attachment: fixed;
 }
 
+body.index-page {
+    background-image: url('img/green_back.jpeg'); /* Replace with your background image path */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Arial', sans-serif;
+}
+
 /* Form Container Styling */
 .form-container {
     background-color: rgba(0, 0, 0, 0.75); /* Semi-transparent dark background */
@@ -45,19 +57,7 @@ p a:hover {
 }
 
 
-body.index-page {
-    background-image: url('img/green_back.jpeg'); /* Replace with your background image path */
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0;
-    margin-top: 20px;
-    font-family: 'Arial', sans-serif;
-}
+
 
 table {
     width: 70%; /* Adjust table width as needed */
@@ -86,10 +86,12 @@ th, td {
     text-align: center;
 }
 
-th {
+.table-results {
     background-color: #27ae60; /* Green header */
     color: white;
 }
+
+
 
 td {
     color: #34495e;
@@ -101,4 +103,61 @@ td {
 
 .table-light {
     background-color: #ecf0f1; /* Light grey for a soft look */
+}
+
+.best-player-header,
+.best-deck-header {
+    /*background-color: #6600FF; !* Set the header color to violet *!*/
+    background-color: #E34234; /* Set the header color to violet */
+    color: white; /* Ensure text is white for readability */
+    text-align: left; /* Align text to the left */
+}
+
+
+
+/* The background of the navbar */
+.navbar {
+    background-color: rgba(255, 255, 255, 0.6);;
+    position: fixed;
+    margin: auto;
+    top: 0px;
+    width: 100%;
+    display: block;
+    transition: top 0.5s;
+    padding: 10px;
+}
+/* The content of the navbar */
+.navbar button{
+    float: left;
+    display: block;
+    color: beige;
+    text-align: center;
+    padding: 15px;
+    font-size: 20px;
+}
+/* Once you go with the mouse */
+.navbar button:hover{
+    background-color: darkslategrey;
+    color: darkseagreen;
+}
+
+button:link, button:visited {
+    color: black;
+    text-decoration: none;
+    background-color: transparent;
+}
+
+
+button:hover {
+    color: #085110;
+    text-decoration: underline;
+}
+
+.out {
+    float: left;
+    display: block;
+    color: beige;
+    text-align: center;
+    padding: 15px;
+    font-size: 20px
 }

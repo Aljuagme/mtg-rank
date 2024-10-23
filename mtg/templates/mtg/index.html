@@ -16,11 +16,11 @@
         const RenderNavbar = ({handleView}) => {
             return (
                 <div className="navbar">
-                    <button className="btn btn-sm btn-outline-primary" onClick={() => handleView("home")}>Home</button>
-                    <button className="btn btn-sm btn-outline-primary" onClick={() => handleView("stats")}>My Stats</button>
-                    <button className="btn btn-sm btn-outline-primary" onClick={() => handleView("decks")}>Best Decks</button>
-                    <button className="btn btn-sm btn-outline-primary" onClick={() => handleView("chart")}>Chart</button>
-                    <a className="btn btn-sm btn-outline-primary" href="/logout">Log Out</a>
+                        <button className="btn btn-sm btn-outline-primary" onClick={() => handleView("home")}>Home</button>
+                        <button className="btn btn-sm btn-outline-primary" onClick={() => handleView("stats")}>My Stats</button>
+                        <button className="btn btn-sm btn-outline-primary" onClick={() => handleView("decks")}>Best Decks</button>
+                        <button className="btn btn-sm btn-outline-primary" onClick={() => handleView("chart")}>Chart</button>
+                        <a className="btn btn-sm btn-outline-primary out" href="/logout">Log Out</a>
                     <hr/>
                 </div>
             );
@@ -91,7 +91,7 @@
             return (
                 <div>
                     <table className="table">
-                        <thead className="table-light">
+                        <thead className="table-light, table-results">
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Deck1</th>
@@ -114,34 +114,44 @@
                     </table>
 
                     <table className="table">
-                        <tr>
-                            <th scope="col">Best Player</th>
-                            <th scope="col">Victories</th>
-                            <th scope="col">Matches Played</th>
-                            <th scope="col">Win Ratio</th>
-                        </tr>
-                        <tr>
-                            <td>{bestPlayer.username}</td>
-                            <td>{bestPlayer.wins}</td>
-                            <td>{bestPlayer.total_matches}</td>
-                            <td>{bestPlayer.win_ratio}%</td>
-                        </tr>
+                        <thead className="best-player-header">
+                            <tr>
+                                <th scope="col">Best Player</th>
+                                <th scope="col">Victories</th>
+                                <th scope="col">Matches Played</th>
+                                <th scope="col">Win Ratio</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr>
+                                <td>{bestPlayer.username}</td>
+                                <td>{bestPlayer.wins}</td>
+                                <td>{bestPlayer.total_matches}</td>
+                                <td>{bestPlayer.win_ratio}%</td>
+                            </tr>
+                        </tbody>
+
                     </table>
                     <table className="table">
-                        <tr>
-                            <th scope="col">Best Deck</th>
-                            <th scope="col">Owner</th>
-                            <th scope="col">Victories</th>
-                            <th scope="col">Matches Played</th>
-                            <th scope="col">Win Ratio</th>
-                        </tr>
-                        <tr>
-                            <td>{bestDeck.name}</td>
-                            <td>{bestDeck.owner}</td>
-                            <td>{bestDeck.wins}</td>
-                            <td>{bestDeck.total_matches}</td>
-                            <td>{bestDeck.win_ratio}%</td>
-                        </tr>
+                        <thead className="best-deck-header">
+                            <tr>
+                                <th scope="col">Best Deck</th>
+                                <th scope="col">Owner</th>
+                                <th scope="col">Victories</th>
+                                <th scope="col">Matches Played</th>
+                                <th scope="col">Win Ratio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{bestDeck.name}</td>
+                                <td>{bestDeck.owner}</td>
+                                <td>{bestDeck.wins}</td>
+                                <td>{bestDeck.total_matches}</td>
+                                <td>{bestDeck.win_ratio}%</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             );
