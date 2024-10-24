@@ -1,4 +1,4 @@
-/* Login Page Background */
+/* Bodies */
 body.login-page {
     background-image: url("img/welcome_valhalla.jpg");
     background-size: cover;
@@ -20,49 +20,53 @@ body.index-page {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     font-family: 'Arial', sans-serif;
 }
 
-/* Form Container Styling */
-.form-container {
-    background-color: rgba(0, 0, 0, 0.75); /* Semi-transparent dark background */
-    border-radius: 10px;
-    max-width: 400px;
-    width: 100%;
-    color: white;
+/* Navbar */
+.navbar {
+    background-color: rgba(255, 255, 255, 0.6);
+    position: fixed;
+    margin: auto;
+    top: 0px;
+    left: 50%; /* Start from the middle */
+    transform: translateX(-50%); /* Center horizontally */
+    width: 1200px; /* Same width as the table container */
+    padding: 10px;
+    z-index: 100; /* Ensure it's always on top */
 }
 
-h2 {
-    color: white;
+/* Button styles */
+.navbar button {
+    float: left;
+    display: block;
+    color: beige;
+    text-align: center;
+    padding: 15px;
+    font-size: 20px;
+    background-color: #2c3e50;
+    font-weight: bold;
+    margin-right: 10px;
 }
 
-/* Button Hover Effect */
-.btn-primary:hover {
-    background-color: #0056b3;
-    color: white;
+.navbar button:hover {
+    background-color: darkslategrey;
+    color: darkseagreen;
 }
 
-p a {
-    color: #007bff;
+.out {
+    position: absolute;
+    right: 10px;
+    text-align: center;
+    padding: 15px;
+    font-size: 20px;
     font-weight: bold;
 }
 
-p a:hover {
-    text-decoration: underline;
-    font-weight: bold;
-}
-
-
-
-
+/* Table */
 table {
-    width: 70%; /* Adjust table width as needed */
-    max-width: 800px; /* Prevent the table from getting too big */
-    background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent background for the table */
+    width: 100%; /* Tables take full width of their container */
+    background-color: rgba(255, 255, 255, 0.9);
     border-collapse: collapse;
     border-radius: 10px;
     overflow: hidden;
@@ -72,11 +76,10 @@ table {
 thead {
     background-color: #2c3e50;
     color: white;
-    text-align: left;
 }
 
 tbody tr:hover {
-    background-color: rgba(46, 204, 113, 0.3); /* Light green highlight on hover */
+    background-color: rgba(46, 204, 113, 0.3);
     transition: background-color 0.3s ease;
 }
 
@@ -86,78 +89,48 @@ th, td {
     text-align: center;
 }
 
-.table-results {
-    background-color: #27ae60; /* Green header */
+/* Best player and deck headers */
+.best-player-header, .best-deck-header {
+    background-color: #E34234;
     color: white;
+    text-align: left;
+}
+
+h1 {
+    text-align: center; /* Center-align the text in h3 */
+    margin-bottom: 10px; /* Add space between h3 and table */
+    margin-top: 10%;
+    color: yellow;
 }
 
 
 
-td {
-    color: #34495e;
+/* ======================================================================== */
+/* Container for all tables */
+.results-page-container {
+    display: flex;
+    flex-direction: column; /* Stack elements vertically */
+    align-items: center;
 }
 
-.table-group-divider {
-    border-top: 2px solid #27ae60;
-}
-
-.table-light {
-    background-color: #ecf0f1; /* Light grey for a soft look */
-}
-
-.best-player-header,
-.best-deck-header {
-    /*background-color: #6600FF; !* Set the header color to violet *!*/
-    background-color: #E34234; /* Set the header color to violet */
-    color: white; /* Ensure text is white for readability */
-    text-align: left; /* Align text to the left */
-}
-
-
-
-/* The background of the navbar */
-.navbar {
-    background-color: rgba(255, 255, 255, 0.6);;
-    position: fixed;
-    margin: auto;
-    top: 0px;
+/* Container for the top two tables (best player and best deck) */
+.top-tables-container {
+    display: flex;
+    justify-content: space-between;
     width: 100%;
-    display: block;
-    transition: top 0.5s;
-    padding: 10px;
-}
-/* The content of the navbar */
-.navbar button{
-    float: left;
-    display: block;
-    color: beige;
-    text-align: center;
-    padding: 15px;
-    font-size: 20px;
-}
-/* Once you go with the mouse */
-.navbar button:hover{
-    background-color: darkslategrey;
-    color: darkseagreen;
+    max-width: 1200px; /* Maximum width to prevent excessive stretching */
+    margin-bottom: 20px; /* Space between top tables and results */
 }
 
-button:link, button:visited {
-    color: black;
-    text-decoration: none;
-    background-color: transparent;
+.best-player-table,
+.best-deck-table {
+    width: 48%; /* Ensure tables take equal space and leave some margin between */
+    margin-top: 10%;
 }
 
-
-button:hover {
-    color: #085110;
-    text-decoration: underline;
-}
-
-.out {
-    float: left;
-    display: block;
-    color: beige;
-    text-align: center;
-    padding: 15px;
-    font-size: 20px
+/* Center the results table */
+.results-table {
+    width: 100%;
+    max-width: 800px; /* Prevent it from getting too wide */
+    margin-top: 20px; /* Add space between top tables and results */
 }
