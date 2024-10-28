@@ -134,3 +134,14 @@ h1 {
     max-width: 800px; /* Prevent it from getting too wide */
     margin-top: 20px; /* Add space between top tables and results */
 }
+
+
+
+/* Form Container Styling */
+.form-container {
+    background-color: rgba(0, 0, 0, 0.75); /* Semi-transparent dark background */
+    border-radius: 10px;
+    max-width: 400px;
+    width: 100%;
+    color: white;
+}

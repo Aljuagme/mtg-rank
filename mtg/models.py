@@ -74,6 +74,7 @@ class Deck(models.Model):
             "category": self.get_category_display(),
             "wins": self.wins_count,
             "losses": self.losses_count,
+            "draws": self.total_matches_count - (self.wins_count + self.losses_count),
             "total_matches": self.total_matches_count,
             "win_ratio": self.win_ratio(),
             "rivals": [{

@@ -20,6 +20,7 @@
                         <button className="btn btn-sm btn-outline-primary" onClick={() => handleView("stats")}>My Stats</button>
                         <button className="btn btn-sm btn-outline-primary" onClick={() => handleView("decks")}>Best Decks</button>
                         <button className="btn btn-sm btn-outline-primary" onClick={() => handleView("chart")}>Chart</button>
+                        <button className="btn btn-sm btn-outline-primary" onClick={() => handleView("tournament")}>Tournament</button>
                         <a className="btn btn-danger out" href="/logout">Log Out</a>
                     <hr/>
                 </div>
@@ -30,15 +31,30 @@
             const [currentView, setCurrentView] = React.useState("home");
             const [category, setCategory] = React.useState("all");
             const [selectedDeck, setSelectedDeck] = React.useState(null);
+            const [selectedPlayer, setSelectedPlayer] = React.useState(null);
+            const [loggedInUserId, setLoggedInUserId] = React.useState(null);
+
+            // Fetch logged-in user ID on load
+            React.useEffect(() => {
+                fetch(`/get_user/${parseInt({{ user.id }})}`)
+                    .then(response => response.json())
+                    .then(data => setLoggedInUserId(data.id))
+                    .catch(error => console.error("Error fetching logged-in user ID:", error));
+            }, []);
 
             const handleView = (view) => {
                 setCurrentView(view)
                 setSelectedDeck(null)
+
+                // If "My Stats" is clicked, use logged-in user ID
+                setSelectedPlayer(view === "stats" ? { id: loggedInUserId } : null);
             }
             return (
                 <div>
                     {/* NavBar */}
-                    <RenderNavbar handleView={handleView} />
+                    <RenderNavbar
+                        handleView={handleView}
+                    />
                     <hr />
 
                     {/* View */}
@@ -46,15 +62,24 @@
                         <RenderDeck
                             selectedDeck={selectedDeck}
                             setSelectedDeck={setSelectedDeck}
+                            setSelectedPlayer={setSelectedPlayer}
                         />
-                    ) :  (
-                        <RenderResults category={category} setSelectedDeck={setSelectedDeck} />
+                    ) : selectedPlayer ?  (
+                        <RenderPlayer
+                            selectedPlayer={selectedPlayer}
+                            setSelectedDeck={setSelectedDeck}
+                        />
+                    ) : (
+                        <RenderResults
+                            setSelectedDeck={setSelectedDeck}
+                            setSelectedPlayer={setSelectedPlayer}
+                        />
                     )}
                 </div>
             );
         };
 
-        const RenderResults = ({ setSelectedDeck }) => {
+        const RenderResults = ({ setSelectedDeck, setSelectedPlayer }) => {
             const [results, setResults] = React.useState([]);
             const [bestDeck, setBestDeck] = React.useState([]);
             const [bestPlayer, setBestPlayer] = React.useState([]);
@@ -72,11 +97,11 @@
                         return response.json();
                     })
                     .then(data => {
-                        console.log(data);
+                        {#console.log(data);#}
                         setResults(data["matches"]);
                         setBestDeck(data["best_deck"]);
                         setBestPlayer(data["best_player"]);
-                        console.log(bestDeck)
+                        {#console.log(bestDeck)#}
                     })
                     .catch(error => console.error("There was a problem while fetching results", error))
                     .finally(() => {
@@ -85,7 +110,13 @@
             }, []); // Empty array means this effect runs only once after the initial render
 
             const handleDeckClick = (deckId) => {
+                setSelectedPlayer(null)
                 setSelectedDeck({ id: deckId });
+            };
+
+            const handlePlayerClick = (playerId) => {
+                setSelectedDeck(null)
+                setSelectedPlayer({ id: playerId });
             };
 
             return (
@@ -104,7 +135,7 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>{bestPlayer.username}</td>
+                                            <td onClick={() => handlePlayerClick(bestPlayer.id)}>{bestPlayer.username}</td>
                                             <td>{bestPlayer.wins}</td>
                                             <td>{bestPlayer.total_matches}</td>
                                             <td>{bestPlayer.win_ratio}%</td>
@@ -126,8 +157,8 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>{bestDeck.name}</td>
-                                            <td>{bestDeck.owner}</td>
+                                            <td onClick={() => handleDeckClick(bestDeck.id)}>{bestDeck.name}</td>
+                                            <td onClick={() => handlePlayerClick(bestPlayer.id)}>{bestDeck.owner}</td>
                                             <td>{bestDeck.wins}</td>
                                             <td>{bestDeck.total_matches}</td>
                                             <td>{bestDeck.win_ratio}%</td>
@@ -166,7 +197,7 @@
                 );
         };
 
-        const RenderDeck = ({ selectedDeck, setSelectedDeck }) => {
+        const RenderDeck = ({ selectedDeck, setSelectedDeck, setSelectedPlayer }) => {
             const [deck, setDeck] = React.useState(null);  // Move useState here
             const deckId = selectedDeck && selectedDeck.id;
 
@@ -197,11 +228,15 @@
 
             const handleRivalDeckClick = (rivalId) => {
                 console.log(rivalId);
+                setSelectedPlayer(null)
                 setSelectedDeck({ id: rivalId });
             };
 
             const handleRivalOwnerClick = (rivalOwnerId) => {
                 console.log(rivalOwnerId);
+                setSelectedDeck(null)
+                setSelectedPlayer({ id: rivalOwnerId })
+
             };
 
             return (
@@ -235,6 +270,90 @@
                                             <td>{rival.stats.win_ratio}%</td>
                                         </tr>
                                     ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const RenderPlayer = ({ selectedPlayer, setSelectedDeck }) => {
+            const [player, setPlayer] = React.useState(null);
+            const [decksPlayer, setDecksPlayer] = React.useState([]);
+
+            const playerId = selectedPlayer && selectedPlayer.id;
+            console.log(`PLAYER ID: ${playerId}`)
+
+            React.useEffect(() => {
+                if (playerId) {
+                    const url = `/get_decks/${parseInt(playerId)}`;
+
+                    fetch(url)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error("Network response was not ok");
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log(data);
+                            setPlayer(data["user"]);
+                            setDecksPlayer(data["decks"])
+                            setSelectedDeck(null)
+                        })
+                        .catch(error => console.error(`There was a problem while fetching deck with ID: ${playerId}`, error));
+                }
+            }, [playerId]); // Only re-run the effect if deckId changes
+
+            if (!player) {
+                return <div>No data available for this deck.</div>;
+            }
+
+            const handleDeckClick = (deckId) => {
+                console.log(deckId);
+                setSelectedDeck({ id: deckId });
+            };
+
+
+            return (
+                <div>
+                    <h1>{player.username}. Win Ratio: {player.win_ratio}%</h1>
+                    <div className="results-page-container">
+                        <div className="results-table">
+                            <table className="table">
+                                <thead className="table-light, table-results">
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Deck</th>
+                                        <th scope="col">Category</th>
+                                        <th scope="col">Total Matches</th>
+                                        <th scope="col">Victories</th>
+                                        <th scope="col">Defeats</th>
+                                        <th scope="col">Draws</th>
+                                        <th scope="col">Win Ratio</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="table-group-divider">
+                                {decksPlayer && decksPlayer.length > 0 ? (
+                                    decksPlayer.map((deck, index) => (
+                                    <tr key={deck.id}>
+                                        <th scope="row">{index + 1}</th>
+                                        <td onClick={() => handleDeckClick(deck.id)}>{deck.name}</td>
+                                        <td>{deck.category}</td>
+                                        <td>{deck.total_matches}</td>
+                                        <td>{deck.wins}</td>
+                                        <td>{deck.losses}</td>
+                                        <td>{deck.draws}</td>
+                                        <td>{deck.win_ratio}%</td>
+                                    </tr>
+                                ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="8">No decks available for this player.</td>
+                                    </tr>
+                                )}
+
                                 </tbody>
                             </table>
                         </div>

@@ -94,7 +94,19 @@ def get_deck_by_id(request, deck_id):
 def get_decks_by_user(request, user_id):
     user = get_object_or_404(User, pk=user_id)
     decks = Deck.objects.filter(user=user)
-    return JsonResponse([deck.serialize() for deck in decks], safe=False)
+    decks_data = [deck.serialize() for deck in decks]
+    print("Get decks user: ", decks_data)
+    print("Same, user: ", user.serialize())
+    return JsonResponse({
+        "decks": decks_data,
+        "user": user.serialize()
+    }, safe=False)
+
+
+@login_required
+def get_user_by_id(request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+    return JsonResponse(user.serialize(), safe=False)
 
 @login_required
 def get_results(request):
@@ -121,7 +133,11 @@ def get_results(request):
 def get_results_by_user(request, user_id):
     user = get_object_or_404(User, pk=user_id)
     matches = Match.objects.filter(user=user)
-    return JsonResponse([match.serialize() for match in matches], safe=False)
+    matches_data = [match.serialize() for match in matches]
+    return JsonResponse({
+        "matches": matches_data,
+        "user": user.serialize(),
+    }, safe=False)
 
 
 
