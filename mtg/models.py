@@ -22,7 +22,7 @@ class User(AbstractUser):
     def win_ratio(self):
         if self.decks.count() != 0:
             total_win_ratio = sum([deck.win_ratio() for deck in self.decks.all()])
-            avg_win_ratio = total_win_ratio / self.decks.count()
+            avg_win_ratio = round(total_win_ratio / self.decks.count(), 1)
             return avg_win_ratio
         return 0
 

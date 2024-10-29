@@ -68,6 +68,7 @@
                         <RenderPlayer
                             selectedPlayer={selectedPlayer}
                             setSelectedDeck={setSelectedDeck}
+                            loggedInUserId={loggedInUserId}
                         />
                     ) : currentView === "decks" ? (
                         <RenderBestDecks
@@ -124,7 +125,7 @@
             // Fetch deck options and match results on form open
             const fetchOptions = async () => {
                 try {
-                    const response = await fetch("/get_options");
+                    const response = await fetch("/get_options/result");
                     const data = await response.json();
                     setUserDecks(data["decks"]);
                     setRivalDecks(data["rival_decks"]);
@@ -157,8 +158,7 @@
                     }
                 }).then(response => {
                     if (response.ok) {
-                        setShowForm(false); // Close the form
-                        // Optionally, refresh results to include the new match
+                        setShowForm(false);
                         window.location.reload();
                     } else {
                         console.error("Failed to add match");
@@ -167,12 +167,10 @@
             };
 
             const handleAddClick = () => {
-                console.log("Yes")
                 setShowForm(true);
                 fetchOptions();
             }
 
-               // Log updated state values
             React.useEffect(() => {
             }, [userDecks, rivalDecks, resultOptions]);
 
@@ -380,11 +378,14 @@
             );
         };
 
-        const RenderPlayer = ({ selectedPlayer, setSelectedDeck }) => {
+        const RenderPlayer = ({ selectedPlayer, setSelectedDeck, loggedInUserId }) => {
             const [player, setPlayer] = React.useState(null);
             const [decksPlayer, setDecksPlayer] = React.useState([]);
+            const [showForm, setShowForm] = React.useState(false);
+            const [category, setCategory] = React.useState([]);
 
             const playerId = selectedPlayer && selectedPlayer.id;
+            const isCurrentUser = loggedInUserId === playerId;
             console.log(`PLAYER ID: ${playerId}`)
 
             React.useEffect(() => {
@@ -417,6 +418,53 @@
                 setSelectedDeck({ id: deckId });
             };
 
+            // Function to get CSRF token from cookies
+            function getCSRFToken() {
+                const cookies = document.cookie.split("; ");
+                for (let cookie of cookies) {
+                    if (cookie.startsWith("csrftoken=")) {
+                        return cookie.split("=")[1];
+                    }
+                }
+                return "";
+            }
+
+            // Fetch deck options and match results on form open
+            const fetchOptions = async () => {
+                try {
+                    const response = await fetch("/get_options/deck");
+                    const data = await response.json();
+                    console.log(data)
+                    setCategory(data["category"]);
+                } catch (error) {
+                    console.error("Error fetching options:", error);
+                }
+            };
+
+            const handleAddClick = () => {
+                setShowForm(true);
+                fetchOptions();
+            }
+
+            const handleSubmitForm = (event) => {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+
+                fetch("/add_deck", {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        "X-CSRFToken": getCSRFToken(),
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        setShowForm(false);
+                        window.location.reload()
+                    } else {
+                        console.error("Failed to add Deck");
+                    }
+                });
+            }
 
             return (
                 <div>
@@ -450,15 +498,52 @@
                                         <td>{deck.win_ratio}%</td>
                                     </tr>
                                 ))
+
                                 ) : (
                                     <tr>
                                         <td colSpan="8">No decks available for this player.</td>
                                     </tr>
                                 )}
+                                {isCurrentUser && (
+                                    <tr>
+                                        <td>
+                                            <button className="button-add" onClick={handleAddClick}>
+                                                <img src="/static/mtg/img/add-button.png" alt="Add Deck" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                )
+                                }
 
                                 </tbody>
                             </table>
                         </div>
+
+                        {/* Form to add new Deck */}
+                        {showForm &&  (
+                            <form onSubmit={handleSubmitForm} className="add-match-form">
+                                <h3>Add New Deck</h3>
+                                <div>
+                                    <label>Name: </label>
+                                    <input name="name"/>
+                                </div>
+                                <div>
+                                    <label>Category: </label>
+                                    <select name="category">
+                                        {category.length > 0 ? (
+                                            category.map(c => (
+                                            <option key={c.id} value={c.id}>{c.label}</option>
+                                        ))
+                                        ) : (
+                                            <option disabled>Loading categories... </option>
+                                        )
+                                        }
+                                    </select>
+                                </div>
+                                <button type="submit">Submit</button>
+                                <button type="button" onClick={() => setShowForm(false)}>Cancel</button>
+                            </form>
+                        )}
                     </div>
                 </div>
             );

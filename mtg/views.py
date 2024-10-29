@@ -176,19 +176,30 @@ def get_best_n_decks(request, n=5, user_id=None):
 
 
 @login_required
-def get_options(request):
-    decks = get_decks_by_user(request=request, user_id=request.user.id)
-    decks_decoded = json.loads(decks.content.decode())
-    user_decks, rival_decks = decks_decoded["decks"], decks_decoded["no_user_decks"]
+def get_options(request, _type="result"):
+    if _type == "result":
+        decks = get_decks_by_user(request=request, user_id=request.user.id)
+        decks_decoded = json.loads(decks.content.decode())
+        user_decks, rival_decks = decks_decoded["decks"], decks_decoded["no_user_decks"]
 
-    # Format Match.Result.choices for JSON response
-    results_match = [{"id": choice[0], "label": choice[1]} for choice in Match.Result.choices]
+        # Format Match.Result.choices for JSON response
+        results_match = [{"id": choice[0], "label": choice[1]} for choice in Match.Result.choices]
 
-    return JsonResponse({
-        "decks": user_decks,
-        "rival_decks": rival_decks,
-        "results_match": results_match,
-    }, safe=False)
+        return JsonResponse({
+            "decks": user_decks,
+            "rival_decks": rival_decks,
+            "results_match": results_match,
+        }, safe=False)
+
+    elif _type == "deck":
+        category = [{"id": choice[0], "label": choice[1]} for choice in Deck.Category.choices]
+        return JsonResponse({"category": category}, safe=False)
+
+    else:
+        return JsonResponse({"error": "Invalid Type"}, status=400)
+
+
+
 
 
 @login_required()
@@ -213,4 +224,18 @@ def add_match(request):
         return JsonResponse({"message": "Match added successfully", "match_id": new_match.id})
 
 
+@login_required
+def add_deck(request):
+    if request.method == "POST":
+        deck_name = request.POST["name"]
+        category = request.POST["category"]
 
+        print(deck_name, category)
+
+        if not all([deck_name, category]):
+            return JsonResponse({"error": "All fields are required."}, status=400)
+
+        new_deck = Deck.objects.create(user=request.user, name=deck_name, category=category)
+        new_deck.save()
+
+        return JsonResponse({"message": "Deck added successfully", "deck_id": new_deck.id})
