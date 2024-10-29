@@ -145,3 +145,36 @@ h1 {
     width: 100%;
     color: white;
 }
+
+/* Apply styles to table cells with an onClick event */
+td[onClick], td[onclick] {
+    cursor: pointer;            /* Changes cursor to a pointer */
+    color: #007bff;             /* Sets the text color to blue (a typical clickable color) */
+    font-weight: bold;          /* Makes the text bold */
+    transition: color 0.3s;     /* Smooth transition for color change */
+}
+
+/* Hover effect to indicate interactivity */
+td[onClick]:hover, td[onclick]:hover {
+    color: #0056b3;             /* Darker shade on hover */
+    text-decoration: underline; /* Underlines text on hover */
+}
+
+.clickable {
+    cursor: pointer;            /* Changes cursor to a pointer */
+    color: #007bff;             /* Sets the text color to blue (a typical clickable color) */
+    font-weight: bold;          /* Makes the text bold */
+    transition: color 0.3s;     /* Smooth transition for color change */
+}
+
+.clickable:hover {
+    color: #0056b3;             /* Darker shade on hover */
+    text-decoration: underline; /* Underlines text on hover */
+}
+
+.button-add {
+    border: none;       /* Removes border */
+    background: none;   /* Removes default button background */
+    padding: 5px;       /* Adjust padding as needed */
+    cursor: pointer;    /* Changes cursor to pointer */
+}

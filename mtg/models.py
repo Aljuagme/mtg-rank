@@ -92,7 +92,16 @@ class Deck(models.Model):
         rivals = Deck.objects.filter(
             models.Q(matches_as_deck1__deck2=self) | models.Q(matches_as_deck2__deck1=self)
         ).distinct()
-        return rivals
+
+        r = []
+        for rival in rivals:
+            win_ratio = self.stats_vs_rival(rival)["win_ratio"]
+            r.append((rival, win_ratio))
+
+        sorted_rivals = sorted(r, key=lambda x: x[1], reverse=True)
+
+        return [rivals[0] for rivals in sorted_rivals]
+
 
     def stats_vs_rival(self, rival):
         matches = Match.objects.filter(

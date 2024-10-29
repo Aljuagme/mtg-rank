@@ -17,4 +17,7 @@ urlpatterns = [
     path("get_best_n_decks", views.get_best_n_decks, name="get_best_n_decks"),
     path("get_best_n_players", views.get_best_n_players, name="get_best_n_players"),
     path("get_user/<int:user_id>", views.get_user_by_id, name="get_user"),
+    path("get_best", views.get_best, name="get_best"),
+    path("get_options", views.get_options, name="get_options"),
+    path("add_match", views.add_match, name="add_match"),
 ]

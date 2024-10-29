@@ -1,3 +1,4 @@
+import json
 from sqlite3 import IntegrityError
 
 from django.contrib.auth import authenticate, login, logout
@@ -84,6 +85,9 @@ def get_decks(request):
     return JsonResponse([deck.serialize() for deck in decks], safe=False)
 
 
+
+
+
 @login_required
 def get_deck_by_id(request, deck_id):
     deck = get_object_or_404(Deck, pk=deck_id)
@@ -94,11 +98,16 @@ def get_deck_by_id(request, deck_id):
 def get_decks_by_user(request, user_id):
     user = get_object_or_404(User, pk=user_id)
     decks = Deck.objects.filter(user=user)
-    decks_data = [deck.serialize() for deck in decks]
-    print("Get decks user: ", decks_data)
-    print("Same, user: ", user.serialize())
+
+    decks_sorted = sorted(decks, key= lambda deck: (deck.win_ratio(), deck.total_matches_count), reverse=True)
+    decks_data = [deck.serialize() for deck in decks_sorted]
+
+    no_user_decks = Deck.objects.exclude(user=user)
+    no_user_decks_data = [deck.serialize() for deck in no_user_decks]
+
     return JsonResponse({
         "decks": decks_data,
+        "no_user_decks": no_user_decks_data,
         "user": user.serialize()
     }, safe=False)
 
@@ -113,15 +122,11 @@ def get_results(request):
     matches = Match.objects.all()
     match_data = [match.serialize() for match in matches]
 
-    best_player = get_best_n_players(request, n=1)
+    best_player = json.loads(get_best_n_players(request, n=1).content.decode())
+    best_player_data = best_player[0] if best_player else {}
 
-    best_player_data = best_player[0].serialize() if best_player else {}
-    print("Get results DATA: ", best_player_data)
-
-    best_deck = get_best_n_decks(request, n=1)
-    print(f"Serializing deck: {best_deck[0].name}, User: {best_deck[0].user}")
-    best_deck_data = best_deck[0].serialize() if best_deck else {}
-    print("Get results DATA DECK", best_deck_data)
+    best_deck = json.loads(get_best_n_decks(request, n=1).content.decode())
+    best_deck_data = best_deck[0] if best_deck else {}
 
     return JsonResponse({
         "matches": match_data,
@@ -141,36 +146,71 @@ def get_results_by_user(request, user_id):
 
 
 
-def get_best_n_decks(request, n=1, user_id=None):
-    # best_deck = Deck.objects.order_by('-wins_count').first()
-    decks = Deck.objects.filter(user=user_id) if user_id else Deck.objects.all()
-    sorted_decks = sorted(decks, key=lambda deck: (deck.win_ratio(), deck.total_matches_count), reverse=True)
-    best_decks = sorted_decks[:n]
-    return best_decks
+def get_best(request):
+    _type = request.GET.get("type", None)
+    n = int(request.GET.get("n", 1))
+
+    if _type == "deck":
+        return get_best_n_decks(request, n)
+    elif _type == "player":
+        return get_best_n_players(request, n)
+    else:
+        return JsonResponse({"error": "Invalid Type"}, status=400)
 
 
 def get_best_n_players(request, n=1):
-
     players = User.objects.all()
-    player_avg_win_ratio = []
+    sorted_players = sorted(players, key=lambda p: (p.win_ratio(), p.total_played()), reverse=True)
+    best_n_players = sorted_players[:n]
 
-    for player in players:
-        player_avg_win_ratio.append((player, player.win_ratio()))
-
-    sorted_players = sorted(player_avg_win_ratio, key=lambda x: x[1], reverse=True)
-
-    for player, avg_win_ratio in sorted_players:
-        print(f"Player: {player.username}, Average Win Ratio: {avg_win_ratio}")
-
-    best_n_players = [player[0] for player in sorted_players[:n]]
-
-    print(best_n_players)
-    print(type(best_n_players))
-
-    return best_n_players
+    return JsonResponse([best.serialize() for best in best_n_players], safe=False)
 
 
+@login_required
+def get_best_n_decks(request, n=5, user_id=None):
+    decks = Deck.objects.filter(user=user_id) if user_id else Deck.objects.all()
+    sorted_decks = sorted(decks, key=lambda deck: (deck.win_ratio(), deck.total_matches_count), reverse=True)
+    best_decks = sorted_decks[:n]
 
+    return JsonResponse([best.serialize() for best in best_decks],safe=False)
+
+
+@login_required
+def get_options(request):
+    decks = get_decks_by_user(request=request, user_id=request.user.id)
+    decks_decoded = json.loads(decks.content.decode())
+    user_decks, rival_decks = decks_decoded["decks"], decks_decoded["no_user_decks"]
+
+    # Format Match.Result.choices for JSON response
+    results_match = [{"id": choice[0], "label": choice[1]} for choice in Match.Result.choices]
+
+    return JsonResponse({
+        "decks": user_decks,
+        "rival_decks": rival_decks,
+        "results_match": results_match,
+    }, safe=False)
+
+
+@login_required()
+def add_match(request):
+    if request.method == "POST":
+        deck1_id = request.POST["deck1"]
+        result_code = request.POST["result"]
+        deck2_id = request.POST["deck2"]
+
+        print(deck1_id, result_code, deck2_id)
+
+        # Validate required fields
+        if not all([deck1_id, deck2_id, result_code]):
+            return JsonResponse({"error": "All fields are required."}, status=400)
+
+        # Fetch Deck objects and ensure they are valid
+        deck1 = get_object_or_404(Deck, id=deck1_id)
+        deck2 = get_object_or_404(Deck, id=deck2_id)
+
+        new_match = Match.objects.create(deck1=deck1, deck2=deck2, result=result_code)
+        new_match.save()
+        return JsonResponse({"message": "Match added successfully", "match_id": new_match.id})
 
 
 
