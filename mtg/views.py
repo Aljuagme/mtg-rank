@@ -117,10 +117,15 @@ def get_user_by_id(request, user_id):
     user = get_object_or_404(User, pk=user_id)
     return JsonResponse(user.serialize(), safe=False)
 
+
+@login_required
+def get_logged_in_user(request):
+    return JsonResponse({"id": request.user.id})
+
 @login_required
 def get_results(request):
     matches = Match.objects.all()
-    match_data = [match.serialize() for match in matches]
+    match_data = [match.serialize() for match in matches][:10]
 
     best_player = json.loads(get_best_n_players(request, n=1).content.decode())
     best_player_data = best_player[0] if best_player else {}

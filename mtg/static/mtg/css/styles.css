@@ -1,6 +1,6 @@
 /* Bodies */
 body.login-page {
-    background-image: url("img/welcome_valhalla.jpg");
+    background-image: url("../img/welcome_valhalla.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -8,7 +8,7 @@ body.login-page {
 }
 
 body.register-page {
-    background-image: url("img/road_valhalla.jpg"); /* Update with the correct static path */
+    background-image: url("../img/road_valhalla.jpg"); /* Update with the correct static path */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -16,7 +16,7 @@ body.register-page {
 }
 
 body.index-page {
-    background-image: url('img/green_back.jpeg'); /* Replace with your background image path */
+    background-image: url('../img/green_back.jpeg'); /* Replace with your background image path */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -119,13 +119,13 @@ h1 {
     justify-content: space-between;
     width: 100%;
     max-width: 1200px; /* Maximum width to prevent excessive stretching */
-    margin-bottom: 20px; /* Space between top tables and results */
+    margin-bottom: 15px; /* Space between top tables and results */
 }
 
 .best-player-table,
 .best-deck-table {
     width: 48%; /* Ensure tables take equal space and leave some margin between */
-    margin-top: 10%;
+    margin-top: 8%;
 }
 
 /* Center the results table */
@@ -178,3 +178,4 @@ td[onClick]:hover, td[onclick]:hover {
     padding: 5px;       /* Adjust padding as needed */
     cursor: pointer;    /* Changes cursor to pointer */
 }
+
