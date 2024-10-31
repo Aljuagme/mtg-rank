@@ -177,43 +177,55 @@ const RenderResults = ({ setSelectedDeck, setSelectedPlayer }) => {
                                 />
                             </button>
                         </td>
+
                     </tr>
                     </tbody>
                 </table>
             </div>
 
             {/* Form to add new match */}
-            {showForm && (
-                <form onSubmit={handleSubmitForm} className="add-match-form">
-                    <h3>Add New Match</h3>
-                    <div>
-                        <label>Deck 1: </label>
-                        <select name="deck1">
-                            {userDecks.map(deck => (
-                                <option key={deck.id} value={deck.id}>{deck.name}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div>
-                        <label>Result: </label>
-                        <select name="result">
-                            {resultOptions.map(result => (
-                                <option key={result.id} value={result.id}>{result.label}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div>
-                        <label>Deck 2: </label>
-                        <select name="deck2">
-                            {rivalDecks.map(rivalDeck => (
-                                <option key={rivalDeck.id} value={rivalDeck.id}>{rivalDeck.name}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <button type="submit">Submit</button>
-                    <button type="button" onClick={() => setShowForm(false)}>Cancel</button>
+           {showForm && (
+                <aside className="form-sidebar">
+                    <form onSubmit={handleSubmitForm} className="add-match-form">
+                        <h3 className="form-title">Add New Match</h3>
 
-                </form>
+                        {/* Deck 1 selection with default deck */}
+                        <div className="form-group">
+                            <label htmlFor="deck1">Deck 1</label>
+                            <select name="deck1" className="form-select">
+                                {userDecks.map((deck, index) => (
+                                    <option key={deck.id} value={deck.id} selected={index === 0}>{deck.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Result selection */}
+                        <div className="form-group">
+                            <label htmlFor="result">Result</label>
+                            <select name="result" className="form-select">
+                                {resultOptions.map(result => (
+                                    <option key={result.id} value={result.id}>{result.label}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Deck 2 selection */}
+                        <div className="form-group">
+                            <label htmlFor="deck2">Deck 2</label>
+                            <select name="deck2" className="form-select">
+                                {rivalDecks.map(rivalDeck => (
+                                    <option key={rivalDeck.id} value={rivalDeck.id}>{rivalDeck.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Buttons */}
+                        <div className="form-buttons">
+                            <button type="submit" className="btn-submit">Submit</button>
+                            <button type="button" className="btn-cancel" onClick={() => setShowForm(false)}>Cancel</button>
+                        </div>
+                    </form>
+                </aside>
             )}
         </div>
     );

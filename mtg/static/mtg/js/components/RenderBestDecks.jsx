@@ -69,5 +69,3 @@ const RenderBestDecks = ({setSelectedPlayer, setSelectedDeck}) => {
         </div>
     )
 }
-
-export default RenderBestDecks;

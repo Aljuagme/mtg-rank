@@ -9,7 +9,6 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 
-
 from .models import User, Deck, Match
 
 
@@ -85,9 +84,6 @@ def get_decks(request):
     return JsonResponse([deck.serialize() for deck in decks], safe=False)
 
 
-
-
-
 @login_required
 def get_deck_by_id(request, deck_id):
     deck = get_object_or_404(Deck, pk=deck_id)
@@ -120,7 +116,10 @@ def get_user_by_id(request, user_id):
 
 @login_required
 def get_logged_in_user(request):
-    return JsonResponse({"id": request.user.id})
+    return JsonResponse({
+        "name": request.user.username,
+        "id": request.user.id})
+
 
 @login_required
 def get_results(request):
@@ -139,6 +138,7 @@ def get_results(request):
         "best_deck": best_deck_data,
         }, safe=False)
 
+
 @login_required
 def get_results_by_user(request, user_id):
     user = get_object_or_404(User, pk=user_id)
@@ -148,7 +148,6 @@ def get_results_by_user(request, user_id):
         "matches": matches_data,
         "user": user.serialize(),
     }, safe=False)
-
 
 
 def get_best(request):
@@ -202,9 +201,6 @@ def get_options(request, _type="result"):
 
     else:
         return JsonResponse({"error": "Invalid Type"}, status=400)
-
-
-
 
 
 @login_required()
