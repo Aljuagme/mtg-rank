@@ -97,44 +97,45 @@ const RenderPlayer = ({ selectedPlayer, setSelectedDeck, loggedInUserId }) => {
 
     return (
         <div>
-            <h1>{player.username}. Win Ratio: {player.win_ratio}%</h1>
+
 
             <div className="results-page-container">
+                <h1>{player.username}. Win Ratio: {player.win_ratio}%</h1>
                 <div className="results-table">
                     <table className="table">
                         <thead className="table-light, table-results">
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Deck</th>
-                                <th scope="col">Category</th>
-                                <th scope="col">Total Matches</th>
-                                <th scope="col">Victories</th>
-                                <th scope="col">Defeats</th>
-                                <th scope="col">Draws</th>
-                                <th scope="col">Win Ratio</th>
-                            </tr>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Deck</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Total Matches</th>
+                            <th scope="col">Victories</th>
+                            <th scope="col">Defeats</th>
+                            <th scope="col">Draws</th>
+                            <th scope="col">Win Ratio</th>
+                        </tr>
                         </thead>
                         <tbody className="table-group-divider">
                         {decksPlayer && decksPlayer.length > 0 ? (
                             decksPlayer.map((deck, index) => (
-                            <tr key={deck.id}>
-                                <th scope="row">{index + 1}</th>
-                                <td className="clickable" onClick={() => handleDeckClick(deck.id)}>{deck.name}</td>
-                                <td>{deck.category}</td>
-                                <td>{deck.total_matches}</td>
-                                <td>{deck.wins}</td>
-                                <td>{deck.losses}</td>
-                                <td>{deck.draws}</td>
-                                <td>{deck.win_ratio}%</td>
-                            </tr>
-                        ))
+                                <tr key={deck.id}>
+                                    <th scope="row">{index + 1}</th>
+                                    <td className="clickable" onClick={() => handleDeckClick(deck.id)}>{deck.name}</td>
+                                    <td>{deck.category}</td>
+                                    <td>{deck.total_matches}</td>
+                                    <td>{deck.wins}</td>
+                                    <td>{deck.losses}</td>
+                                    <td>{deck.draws}</td>
+                                    <td>{deck.win_ratio}%</td>
+                                </tr>
+                            ))
 
                         ) : (
                             <tr>
                                 <td colSpan="8">No decks available for this player.</td>
                             </tr>
                         )}
-                      {isCurrentUser && (
+                        {isCurrentUser && (
                             <tr>
                                 <td>
                                     <button className="button-add" onClick={handleAddClick}>
@@ -146,8 +147,8 @@ const RenderPlayer = ({ selectedPlayer, setSelectedDeck, loggedInUserId }) => {
                                     </button>
                                 </td>
                             </tr>
-                      )
-                      }
+                        )
+                        }
 
                         </tbody>
                     </table>
@@ -167,8 +168,8 @@ const RenderPlayer = ({ selectedPlayer, setSelectedDeck, loggedInUserId }) => {
                                 <select name="category" className="form-select">
                                     {category.length > 0 ? (
                                         category.map(c => (
-                                        <option key={c.id} value={c.id}>{c.label}</option>
-                                    ))
+                                            <option key={c.id} value={c.id}>{c.label}</option>
+                                        ))
                                     ) : (
                                         <option disabled>Loading categories... </option>
                                     )
@@ -178,7 +179,8 @@ const RenderPlayer = ({ selectedPlayer, setSelectedDeck, loggedInUserId }) => {
                             {/* Buttons */}
                             <div className="form-buttons">
                                 <button type="submit" className="btn-submit">Submit</button>
-                                <button type="button" className="btn-cancel" onClick={() => setShowForm(false)}>Cancel</button>
+                                <button type="button" className="btn-cancel" onClick={() => setShowForm(false)}>Cancel
+                                </button>
                             </div>
                         </form>
                     </aside>

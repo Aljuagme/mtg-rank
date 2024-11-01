@@ -41,29 +41,32 @@ const RenderDeck = ({ selectedDeck, setSelectedDeck, setSelectedPlayer }) => {
 
     return (
         <div>
-            <h1>{deck.category} - {deck.name}. Win Ratio: {deck.win_ratio}%</h1>
+
             <div className="results-page-container">
+                <h1>{deck.category} - {deck.name}. Win Ratio: {deck.win_ratio}%</h1>
                 <div className="results-table">
                     <table className="table">
                         <thead className="table-light, table-results">
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Rival</th>
-                                <th scope="col">Owner</th>
-                                <th scope="col">Total Matches</th>
-                                <th scope="col">Victories</th>
-                                <th scope="col">Defeats</th>
-                                <th scope="col">Draws</th>
-                                <th scope="col">Win Ratio</th>
-                            </tr>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Rival</th>
+                            <th scope="col">Owner</th>
+                            <th scope="col">Total Matches</th>
+                            <th scope="col">Victories</th>
+                            <th scope="col">Defeats</th>
+                            <th scope="col">Draws</th>
+                            <th scope="col">Win Ratio</th>
+                        </tr>
                         </thead>
                         <tbody className="table-group-divider">
-                            {rivals.length > 0 ? (
-                                rivals.map((rival, index) => (
+                        {rivals.length > 0 ? (
+                            rivals.map((rival, index) => (
                                 <tr key={rival.id}>
                                     <th scope="row">{index + 1}</th>
-                                    <td className="clickable" onClick={() => handleRivalDeckClick(rival.id)}>{rival.name}</td>
-                                    <td className="clickable" onClick={() => handleRivalOwnerClick(rival.owner.id)}>{rival.owner.username}</td>
+                                    <td className="clickable"
+                                        onClick={() => handleRivalDeckClick(rival.id)}>{rival.name}</td>
+                                    <td className="clickable"
+                                        onClick={() => handleRivalOwnerClick(rival.owner.id)}>{rival.owner.username}</td>
                                     <td>{rival.stats.total}</td>
                                     <td>{rival.stats.wins}</td>
                                     <td>{rival.stats.losses}</td>
@@ -72,9 +75,9 @@ const RenderDeck = ({ selectedDeck, setSelectedDeck, setSelectedPlayer }) => {
                                 </tr>
                             ))
                         ) : (
-                        <tr>
-                            <td colSpan="8">No matches available for this deck</td>
-                        </tr>
+                            <tr>
+                                <td colSpan="8">No matches available for this deck</td>
+                            </tr>
 
                         )}
                         </tbody>

@@ -107,7 +107,7 @@ const RenderResults = ({ setSelectedDeck, setSelectedPlayer }) => {
                         </thead>
                         <tbody>
                         <tr>
-                            <td className="clickable"
+                            <td className={"clickable best-clickable"}
                                 onClick={() => handlePlayerClick(bestPlayer.id)}>{bestPlayer.username}</td>
                             <td>{bestPlayer.wins}</td>
                             <td>{bestPlayer.total_matches}</td>
@@ -130,9 +130,9 @@ const RenderResults = ({ setSelectedDeck, setSelectedPlayer }) => {
                         </thead>
                         <tbody>
                         <tr>
-                            <td className="clickable"
+                            <td className={"clickable best-clickable"}
                                 onClick={() => handleDeckClick(bestDeck.id)}>{bestDeck.name}</td>
-                            <td className="clickable"
+                            <td className="clickable best-clickable"
                                 onClick={() => handlePlayerClick(bestDeck.ownerId)}>{bestDeck.owner}</td>
                             <td>{bestDeck.wins}</td>
                             <td>{bestDeck.total_matches}</td>
@@ -159,10 +159,10 @@ const RenderResults = ({ setSelectedDeck, setSelectedPlayer }) => {
                     {results.length > 0 && results.map((match, index) => (
                         <tr key={index}>
                             <th scope="row">{index + 1}</th>
-                            <td className="clickable"
+                            <td className={match.deck1.id === bestDeck.id ? "clickable best-clickable" : "clickable"}
                                 onClick={() => handleDeckClick(match.deck1.id)}>{match.deck1.name}</td>
                             <td>{match.result}</td>
-                            <td className="clickable"
+                            <td className={match.deck2.id === bestDeck.id ? "clickable best-clickable" : "clickable"}
                                 onClick={() => handleDeckClick(match.deck2.id)}>{match.deck2.name}</td>
                             <td>{match.date_played}</td>
                         </tr>

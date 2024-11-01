@@ -31,8 +31,9 @@ const RenderBestDecks = ({setSelectedPlayer, setSelectedDeck}) => {
 
     return (
         <div>
-            <h1>Hall of Fame</h1>
+
             <div className="results-page-container">
+                <h1>Hall of Fame</h1>
                 <div className="results-table">
                     <table className="table">
                         <thead className="table-light, table-results">
