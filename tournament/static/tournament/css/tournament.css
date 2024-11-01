@@ -1,0 +1,61 @@
+body {
+    background-color: #1c1f24;
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+}
+
+.tournament-container {
+    max-width: 600px;
+    margin: 1.5rem auto;
+    background: #2c2f36;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.tournament-header {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.tournament-header h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #f9ca24;
+}
+
+.form-control {
+    background: #3a3e47;
+    color: #ffffff;
+    border: 1px solid #565c6b;
+}
+
+.form-control:focus {
+    border-color: #f9ca24;
+    box-shadow: none;
+}
+
+.form-label {
+    color: #f9ca24;
+    font-weight: bold;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1.2rem;
+    background-color: #f9ca24;
+    color: #1c1f24;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.submit-btn:hover {
+    background-color: #e1b721;
+}
+
+.player-input {
+    margin-bottom: 1rem;
+}
