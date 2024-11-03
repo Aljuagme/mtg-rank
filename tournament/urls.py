@@ -6,4 +6,5 @@ app_name = "tournament"
 
 urlpatterns = [
     path("", views.setup, name="setup"),
+    path("start", views.start, name="start"),
 ]

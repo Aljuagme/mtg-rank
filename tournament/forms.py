@@ -19,8 +19,6 @@ class ListPlayersForm(forms.Form):
 
         player_names = [name for name in players if name]
 
-        print(player_names)
-
         if len(player_names) != len(set(player_names)):
             raise forms.ValidationError("All players must have unique names")
         for name in player_names:
