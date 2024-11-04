@@ -63,3 +63,79 @@ body.tournament {
 .player-input {
     margin-bottom: 1rem;
 }
+
+
+/* Overall background for the component */
+.round-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 40px;
+    background: linear-gradient(135deg, #d3d3d3, #ffd700, #ffc0cb);
+    background-size: cover;
+    border-radius: 20px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    max-width: 80%;
+    margin: 0 auto;
+}
+
+/* Styling each table */
+.match-table {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Header styling */
+.match-table th {
+    background-color: #333;
+    color: #fff;
+    padding: 12px 8px;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+/* Row styling */
+.match-table td {
+    padding: 15px 10px;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+/* Select dropdown styling */
+.match-table select {
+    padding: 6px;
+    border-radius: 8px;
+    border: 1px solid #999;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: #555;
+}
+
+/* Radio button styling */
+.match-table input[type="radio"] {
+    transform: scale(1.2);
+    accent-color: #ffd700;
+    cursor: pointer;
+}
+
+/* Table alternating row colors */
+.match-table tbody tr:nth-child(even) {
+    background-color: rgba(230, 230, 230, 0.5);
+}
+
+/* Adding hover effects */
+.match-table tbody tr:hover {
+    background-color: rgba(255, 215, 0, 0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .round-container {
+        grid-template-columns: 1fr;
+    }
+}

@@ -20,7 +20,7 @@ class Player(models.Model):
         return self
 
     def __str__(self):
-        return f"Name: {self.name}. Rivals: {[rival for rival in self.get_rivals()]}"
+        return f"Name: {self.name}. Rivals: {[rival.name for rival in self.get_rivals()]}"
 
     def get_rivals(self):
         rivals = Player.objects.filter(
@@ -36,7 +36,6 @@ class Player(models.Model):
             "name": self.name,
             "points": self.points,
             "match_wins": self.match_wins,
-            "rivals": [rival for rival in self.get_rivals()],
         }
 
 
@@ -55,6 +54,8 @@ class TournamentMatch(models.Model):
     player2 = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='matches_as_player2')
     winner = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='matches_won', blank=True, null=True)
     result = models.CharField(choices=Result.choices, default=Result.ABSOLUTE_WIN, max_length=2)
+    n_round = models.IntegerField()
+    active = models.BooleanField(default=True)
     date_played = models.DateTimeField(auto_now_add=True)
 
     def clean(self):
@@ -89,9 +90,18 @@ class TournamentMatch(models.Model):
         super().save(*args, **kwargs) # We modify the save() to check the equality of decks. That's why super(), to call the father save.
 
 
-
     def __str__(self):
         return f"{self.player1.name} vs {self.player2.name}. |-> Winner: {self.winner.name if self.winner else 'Draw'}"
+
+    def deactivate(self):
+        self.active = False
+        self.save()
+        return self
+
+    def activate(self):
+        self.active = True
+        self.save()
+        return self
 
     def serialize(self):
         return {

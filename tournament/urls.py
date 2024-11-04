@@ -7,5 +7,6 @@ app_name = "tournament"
 urlpatterns = [
     path("", views.setup, name="setup"),
     path("start", views.start, name="start"),
-    path("get_players", views.get_players, name="get_players"),
+    path("round/<int:n_round>", views.play_round, name="play_round"),
+    path("get_possible_results", views.get_possible_results, name="get_possible_results"),
 ]

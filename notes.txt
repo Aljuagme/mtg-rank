@@ -20,8 +20,8 @@ send color violet to other components?
 
 implement tournament and chart
 
-Check all messages!
-
 "This player does not have any deck yet. Add one!" -> is still black with no aesthetics
 
 Populate form
+
+Table showing cross-matchs and on the right table showing classification so far

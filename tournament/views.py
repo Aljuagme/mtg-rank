@@ -1,4 +1,5 @@
 import random
+from random import choice
 
 from django.urls import reverse
 
@@ -64,13 +65,57 @@ def start(request):
 
 
 
+@login_required
+def play_round(request, n_round):
+    # Check if matches for this round already exist and are active
+    matches = TournamentMatch.objects.filter(n_round=n_round, active=True)
+    print(f"Existing matches for round {n_round}: {matches}")
+
+    print(matches.exists())
+
+    # If matches exist, return them instead of creating new ones
+    if matches.exists():
+        match_data = [match.serialize() for match in matches]
+        return JsonResponse(match_data, safe=False)
+    else:
+        players = get_players(n_round=n_round)
+        create_matches(players, n_round=n_round)
+        matches = TournamentMatch.objects.filter(n_round=n_round, active=True)
+        match_data = [match.serialize() for match in matches]
+
+        return JsonResponse(match_data, safe=False)
+
+
+
+def create_matches(players, n_round):
+    n_pairs = len(players) // 2
+
+    TournamentMatch.objects.all().update(active=False)
+    # TournamentMatch.objects.filter(n_round__lt=n_round).update(active=False) LESS THAN! WOW
+
+    TournamentMatch.objects.bulk_create([
+        TournamentMatch(
+            player1=players[i],
+            player2=players[i + n_pairs],
+            n_round=n_round
+        )
+        for i in range(n_pairs)
+    ])
+
+
+def get_players(n_round=None):
+    players = Player.objects.filter(active=True)
+
+    players_data = list(players)
+
+    if n_round == 1:
+        random.shuffle(players_data)
+
+    return players_data
+
 
 
 @login_required
-def get_players(request):
-    players = Player.objects.filter(active=True)
-
-    players_data = [player.serialize() for player in players]
-    random.shuffle(players_data)
-
-    return JsonResponse(players_data, safe=False)
+def get_possible_results(request):
+    results_match = [{"id": choice[0], "label": choice[1]} for choice in TournamentMatch.Result.choices]
+    return JsonResponse(results_match, safe=False)
