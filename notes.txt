@@ -23,3 +23,5 @@ implement tournament and chart
 Check all messages!
 
 "This player does not have any deck yet. Add one!" -> is still black with no aesthetics
+
+Populate form

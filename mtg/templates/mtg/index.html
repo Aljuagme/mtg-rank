@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,18 +9,18 @@
     <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-    <link rel="stylesheet" href="/static/mtg/css/styles.css">
+    <link rel="stylesheet" href="{% static 'mtg/css/styles.css' %}">
 </head>
 <body class="index-page fixed-background">
     <div id="App"></div>
 
     <!-- Components -->
-    <script type="text/babel" src="static/mtg/js/components/RenderNavbar.jsx"></script>
-    <script type="text/babel" src="static/mtg/js/components/RenderDeck.jsx"></script>
-    <script type="text/babel" src="static/mtg/js/components/RenderPlayer.jsx"></script>
-    <script type="text/babel" src="static/mtg/js/components/RenderResults.jsx"></script>
-    <script type="text/babel" src="static/mtg/js/components/RenderBestDecks.jsx"></script>
-    <script type="text/babel" src="static/mtg/js/App.jsx"></script>
+    <script type="text/babel" src="{% static 'mtg/js/components/RenderNavbar.jsx' %}"></script>
+    <script type="text/babel" src="{% static 'mtg/js/components/RenderDeck.jsx' %}"></script>
+    <script type="text/babel" src="{% static 'mtg/js/components/RenderPlayer.jsx' %}"></script>
+    <script type="text/babel" src="{% static 'mtg/js/components/RenderResults.jsx' %}"></script>
+    <script type="text/babel" src="{% static 'mtg/js/components/RenderBestDecks.jsx' %}"></script>
+    <script type="text/babel" src="{% static 'mtg/js/App.jsx' %}"></script>
 
     <script type="text/babel">
             ReactDOM.render(<App />, document.querySelector("#App"));

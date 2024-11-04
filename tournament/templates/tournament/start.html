@@ -1,16 +1,24 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <link rel="stylesheet" href="{% static 'tournament/css/tournament.css' %}">
 </head>
-<body>
+<body class="tournament">
+    <div id="Tournament"></div>
 
-{% for player in players %}
+    <!-- Components -->
+    <script type="text/babel" src="{% static 'tournament/js/components/RenderRound1.jsx' %}"></script>
+    <script type="text/babel" src="{% static 'tournament/js/App.jsx' %}"></script>
 
-    <p>{{ player }}</p>
-
-{% endfor %}
-
+    <script type="text/babel">
+            ReactDOM.render(<App />, document.querySelector("#Tournament"));
+    </script>
 </body>
 </html>

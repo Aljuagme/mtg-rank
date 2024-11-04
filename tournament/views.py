@@ -1,13 +1,16 @@
+import random
+
 from django.urls import reverse
 
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .forms import ListPlayersForm
 
 from mtg.models import User
-from .models import Player
+from .models import Player, TournamentMatch
+
 
 # Create your views here.
 def setup(request):
@@ -56,11 +59,7 @@ def enroll_participants(player_names):
 
 @login_required
 def start(request):
-    players = get_players(request)
-
-    return render(request, "tournament/start.html", {
-        "players": players
-    })
+    return render(request, "tournament/start.html")
 
 
 
@@ -70,4 +69,8 @@ def start(request):
 @login_required
 def get_players(request):
     players = Player.objects.filter(active=True)
-    return players
+
+    players_data = [player.serialize() for player in players]
+    random.shuffle(players_data)
+
+    return JsonResponse(players_data, safe=False)
