@@ -68,15 +68,17 @@ body.tournament {
 /* Overall background for the component */
 .round-container {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 20px;
     padding: 40px;
     background: linear-gradient(135deg, #d3d3d3, #ffd700, #ffc0cb);
     background-size: cover;
     border-radius: 20px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-    max-width: 80%;
-    margin: 0 auto;
+    max-width: 40%;
+    margin-top: 5%;
+    margin-left: 10px;
+    opacity: 95%;
 }
 
 /* Styling each table */
@@ -101,7 +103,7 @@ body.tournament {
 
 /* Row styling */
 .match-table td {
-    padding: 15px 10px;
+    padding: 10px 10px;
     color: #333;
     font-size: 0.9rem;
 }
@@ -138,4 +140,10 @@ body.tournament {
     .round-container {
         grid-template-columns: 1fr;
     }
+}
+
+h1 {
+    text-align: center; /* Center-align the text in h3 */
+    color: brown;
+    margin: 0;
 }

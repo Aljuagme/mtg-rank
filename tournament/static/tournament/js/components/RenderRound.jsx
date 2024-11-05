@@ -1,5 +1,6 @@
 const RenderRound = ({roundNumber, setRoundNumber}) => {
     const [tournamentMatches, setTournamentMatches] = React.useState([]);
+    const [rankedPlayers, setRankedPlayers] = React.useState([]);
     const [possibleResults, setPossibleResults] = React.useState(null)
 
 
@@ -32,7 +33,11 @@ const RenderRound = ({roundNumber, setRoundNumber}) => {
                 }
                 return response.json();
             })
-            .then(data => setTournamentMatches(data))
+            .then(data => {
+                console.log(data)
+                setTournamentMatches(data["match_data"])
+                setRankedPlayers(data["ranked_players"])
+            })
             .catch(error => console.error(`There was a problem while setting matches in Round ${roundNumber}`, error))
     }, [roundNumber])
 
@@ -50,10 +55,12 @@ const RenderRound = ({roundNumber, setRoundNumber}) => {
 
 
     return (
-        <div className="round-container">
-            {tournamentMatches.map((match, index) => (
-                <table key={index} className="match-table">
-                    <thead>
+        <div>
+            <div className="round-container">
+                <h1>Round {roundNumber}</h1>
+                {tournamentMatches.map((match, index) => (
+                    <table key={index} className="match-table">
+                        <thead>
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Player 1</th>
@@ -61,8 +68,8 @@ const RenderRound = ({roundNumber, setRoundNumber}) => {
                             <th scope="col">Player 2</th>
                             <th scope="col">Verify</th>
                         </tr>
-                    </thead>
-                    <tbody>
+                        </thead>
+                        <tbody>
                         <tr>
                             <td scope="row">{index + 1}</td>
                             <td>{match.player1.name}</td>
@@ -77,12 +84,15 @@ const RenderRound = ({roundNumber, setRoundNumber}) => {
                             </td>
                             <td>{match.player2.name}</td>
                             <td>
-                                <input type="radio" />
+                                <input type="radio"/>
                             </td>
                         </tr>
-                    </tbody>
-                </table>
-            ))}
+                        </tbody>
+
+                    </table>
+                ))}
+                <button type="submit" className="submit-btn">Finish Round {roundNumber}</button>
+            </div>
         </div>
     );
 }

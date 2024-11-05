@@ -1,5 +1,4 @@
 import random
-from random import choice
 
 from django.urls import reverse
 
@@ -19,7 +18,7 @@ def setup(request):
         num_players = 8
 
         # Not working yet =======================================================
-        # Pre-fill form fields with user names
+        # Pre-fill form fields with usernames
         users = User.objects.values_list('username', flat=True)[:num_players]
 
         initial_data = {f'player_{i + 1}': user for i, user in enumerate(users)}
@@ -67,23 +66,26 @@ def start(request):
 
 @login_required
 def play_round(request, n_round):
+    players = get_players(n_round=n_round)
+    ranked_players = [player.serialize() for player in rank_players(players)]
     # Check if matches for this round already exist and are active
     matches = TournamentMatch.objects.filter(n_round=n_round, active=True)
     print(f"Existing matches for round {n_round}: {matches}")
 
     print(matches.exists())
 
-    # If matches exist, return them instead of creating new ones
-    if matches.exists():
-        match_data = [match.serialize() for match in matches]
-        return JsonResponse(match_data, safe=False)
-    else:
-        players = get_players(n_round=n_round)
+    if not matches.exists():
         create_matches(players, n_round=n_round)
         matches = TournamentMatch.objects.filter(n_round=n_round, active=True)
-        match_data = [match.serialize() for match in matches]
 
-        return JsonResponse(match_data, safe=False)
+    match_data = [match.serialize() for match in matches]
+
+    return JsonResponse(
+        {
+            "match_data": match_data,
+            "ranked_players": ranked_players
+        },
+    safe=False)
 
 
 
@@ -119,3 +121,9 @@ def get_players(n_round=None):
 def get_possible_results(request):
     results_match = [{"id": choice[0], "label": choice[1]} for choice in TournamentMatch.Result.choices]
     return JsonResponse(results_match, safe=False)
+
+
+def rank_players(players):
+    ranked_players = sorted(players, key=lambda player: (player.points, player.match_wins), reverse=True)
+    print("Ranked Players: ", ranked_players)
+    return ranked_players
