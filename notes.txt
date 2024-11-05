@@ -25,3 +25,6 @@ implement tournament and chart
 Populate form
 
 Table showing cross-matchs and on the right table showing classification so far
+
+Tournament object? for loading last players just retrieve the last row of Tournament played.
+

@@ -7,6 +7,7 @@ class Player(models.Model):
     name = models.CharField(max_length=20)
     points = models.IntegerField(default=0)
     match_wins = models.IntegerField(default=0)
+    match_losses = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
 
     def deactivate(self):
@@ -29,6 +30,9 @@ class Player(models.Model):
 
         return rivals
 
+    def get_kill_death_ratio(self):
+        return self.match_wins - self.match_losses
+
     def serialize(self):
 
         return {
@@ -36,6 +40,7 @@ class Player(models.Model):
             "name": self.name,
             "points": self.points,
             "match_wins": self.match_wins,
+            "KD": self.get_kill_death_ratio(),
         }
 
 

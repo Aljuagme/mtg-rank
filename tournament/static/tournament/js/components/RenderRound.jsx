@@ -55,7 +55,7 @@ const RenderRound = ({roundNumber, setRoundNumber}) => {
 
 
     return (
-        <div>
+        <div className="page-container">
             <div className="round-container">
                 <h1>Round {roundNumber}</h1>
                 {tournamentMatches.map((match, index) => (
@@ -92,6 +92,28 @@ const RenderRound = ({roundNumber, setRoundNumber}) => {
                     </table>
                 ))}
                 <button type="submit" className="submit-btn">Finish Round {roundNumber}</button>
+            </div>
+            <div className="ranked-table-container">
+                <table className="ranked-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Player</th>
+                            <th scope="col">K/D</th>
+                            <th scope="col">Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {rankedPlayers.map((player, index) => (
+                        <tr>
+                            <td scope="row">{index + 1}</td>
+                            <td scope="row">{player.name}</td>
+                            <td scope="row">{player.KD}</td>
+                            <td scope="row">{player.points}</td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
             </div>
         </div>
     );
