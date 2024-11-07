@@ -21,7 +21,7 @@ class Player(models.Model):
         return self
 
     def __str__(self):
-        return f"Name: {self.name}. Rivals: {[rival.name for rival in self.get_rivals()]}"
+        return f"Name: {self.name}. Points: {self.points} \n\tRivals: {[rival.name for rival in self.get_rivals()]}\n"
 
     def get_rivals(self):
         rivals = Player.objects.filter(

@@ -28,3 +28,6 @@ Table showing cross-matchs and on the right table showing classification so far
 
 Tournament object? for loading last players just retrieve the last row of Tournament played.
 
+User can change background image
+
+podium con copas. Despues cada usuario tiene una estrella a lo mundial.

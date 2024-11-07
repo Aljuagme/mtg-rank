@@ -203,7 +203,7 @@ def get_options(request, _type="result"):
         return JsonResponse({"error": "Invalid Type"}, status=400)
 
 
-@login_required()
+@login_required
 def add_match(request):
     if request.method == "POST":
         deck1_id = request.POST["deck1"]
