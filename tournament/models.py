@@ -3,29 +3,46 @@ from django.db import models
 
 
 # Create your models here.
+class Tournament(models.Model):
+    date = models.DateField(auto_now_add=True)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name_plural = "Tournaments"
+        verbose_name = "Tournament"
+        ordering = ['-date']
+
+
 class Player(models.Model):
     name = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.name
+
+class PlayerTournamentStats(models.Model):
+    player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='tournament_stats')
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, blank=True, related_name='players_stats')
     points = models.IntegerField(default=0)
     match_wins = models.IntegerField(default=0)
     match_losses = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
 
-    def deactivate(self):
-        self.active = False
-        self.save()
-        return self
+    class Meta:
+        unique_together = ('player', 'tournament')
 
-    def activate(self):
-        self.active = True
+    def reset_stats(self):
+        self.points = 0
+        self.match_wins = 0
+        self.match_losses = 0
         self.save()
-        return self
 
     def __str__(self):
-        return f"Name: {self.name}. Points: {self.points} \n\tRivals: {[rival.name for rival in self.get_rivals()]}\n"
+        return f"Name: {self.player.name}. Points: {self.points} Playing tournament: {self.tournament.id}"
 
-    def get_rivals(self):
-        rivals = Player.objects.filter(
-            models.Q(matches_as_player1__player2=self) | models.Q(matches_as_player2__player1=self),
+    def get_rivals(self, tournament):
+        rivals = PlayerTournamentStats.objects.filter(
+            models.Q(matches_as_player1__player2=self, matches_as_player1__tournament=tournament)
+            | models.Q(matches_as_player2__player1=self, matches_as_player2__tournament=tournament),
         ).distinct()
 
         return rivals
@@ -34,10 +51,9 @@ class Player(models.Model):
         return self.match_wins - self.match_losses
 
     def serialize(self):
-
         return {
             "id": self.id,
-            "name": self.name,
+            "name": self.player.name,
             "points": self.points,
             "match_wins": self.match_wins,
             "KD": self.get_kill_death_ratio(),
@@ -55,9 +71,10 @@ class TournamentMatch(models.Model):
     class Meta:
         ordering = ("-date_played", )
 
-    player1 = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='matches_as_player1')
-    player2 = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='matches_as_player2')
-    winner = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='matches_won', blank=True, null=True)
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name='matches', blank=True)
+    player1 = models.ForeignKey(PlayerTournamentStats, on_delete=models.CASCADE, related_name='matches_as_player1')
+    player2 = models.ForeignKey(PlayerTournamentStats, on_delete=models.CASCADE, related_name='matches_as_player2')
+    winner = models.ForeignKey(PlayerTournamentStats, on_delete=models.CASCADE, related_name='matches_won', blank=True, null=True)
     result = models.CharField(choices=Result.choices, default=Result.ABSOLUTE_WIN, max_length=2)
     n_round = models.IntegerField()
     active = models.BooleanField(default=True)
@@ -96,17 +113,8 @@ class TournamentMatch(models.Model):
 
 
     def __str__(self):
-        return f"{self.player1.name} vs {self.player2.name}. |-> Winner: {self.winner.name if self.winner else 'Draw'}"
+        return f"{self.player1.player.name} vs {self.player2.player.name}."
 
-    def deactivate(self):
-        self.active = False
-        self.save()
-        return self
-
-    def activate(self):
-        self.active = True
-        self.save()
-        return self
 
     def serialize(self):
         return {
@@ -114,6 +122,6 @@ class TournamentMatch(models.Model):
             "player1": self.player1.serialize(),
             "player2": self.player2.serialize(),
             "date_played": self.date_played.date(),
-            "winner": self.winner.name if self.winner else None,
+            "winner": self.winner.player.name if self.winner else None,
             "result": self.get_result_display(),
         }

@@ -31,3 +31,9 @@ Tournament object? for loading last players just retrieve the last row of Tourna
 User can change background image
 
 podium con copas. Despues cada usuario tiene una estrella a lo mundial.
+
+Sometimes there are only 3 matches when PAiring!!! check that pairment works as expected. Improve pairment. Doesnt play winners vs winners either.
+
+Old Tournament matches are still active
+
+IF same points but I beat a player even though s/he has more K/D, I should be earlier on rank.

@@ -13,7 +13,7 @@ function App() {
             .catch(error => console.error("Error fetching logged-in user ID:", error));
     }, []);
 
-    console.log(`Logged in user: ${loggedInUserId}`)
+    console.log(`Logged in user: #${loggedInUserId}`)
 
     const handleView = (view) => {
         setCurrentView(view)

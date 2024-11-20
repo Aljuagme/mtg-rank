@@ -1,6 +1,6 @@
 def rank_players(players):
     """Ranks players based on points and match wins."""
-    return sorted(players, key=lambda player: (player.points, player.match_wins), reverse=True)
+    return sorted(players, key=lambda player: (player.points, player.match_wins, player.get_kill_death_ratio()), reverse=True)
 
 def update_player_stats(player, result, is_player1):
     """

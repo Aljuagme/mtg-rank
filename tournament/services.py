@@ -5,12 +5,12 @@ from json import JSONDecodeError
 from .utils import update_player_stats, rank_players
 from .forms import ListPlayersForm
 from mtg.models import User
-from .models import Player, TournamentMatch
+from .models import Player, TournamentMatch, Tournament, PlayerTournamentStats
 
 
-def get_players(n_round=None):
+def get_players(tournament, n_round=None):
     """Retrieves and shuffles active players for the first round."""
-    players = list(Player.objects.filter(active=True))
+    players = list(PlayerTournamentStats.objects.filter(active=True, tournament=tournament))
     if n_round == 1:
         random.shuffle(players)
     return players
@@ -21,31 +21,44 @@ def get_prefilled_form(num_players=8):
     initial_data = {f'player_{i + 1}': user for i, user in enumerate(users)}
     return ListPlayersForm(initial=initial_data)
 
-def enroll_and_start(player_data):
+def enroll_players(player_data):
     """Enrolls participants based on form data and starts the tournament."""
     player_names = [name.capitalize() for name in player_data.values() if name]
-    enroll_participants(player_names)
+    tournament = get_or_create_tournament()
 
-def enroll_participants(player_names):
-    """Enrolls or activates players based on provided names."""
-    existing_players = Player.objects.filter(name__in=player_names)
-    existing_players_names = {player.name for player in existing_players}
+    for name in player_names:
+        player, _ = Player.objects.get_or_create(name=name)
+        stats, created = PlayerTournamentStats.objects.get_or_create(player=player, tournament=tournament)
+        if not created:
+            stats.reset_stats()
+        stats.active = True
+        stats.save()
 
-    existing_players.update(active=True)
-    new_names = set(player_names) - existing_players_names
-    Player.objects.bulk_create([Player(name=name) for name in new_names])
-    Player.objects.exclude(name__in=player_names).update(active=False)
+    PlayerTournamentStats.objects.filter(tournament=tournament).exclude(player__name__in=player_names).update(active=False)
 
-def create_matches(players, n_round):
+
+def create_matches(players, n_round, tournament):
     """Creates matches for a new round."""
-    n_pairs = len(players) // 2
-    TournamentMatch.objects.filter(n_round=n_round).update(active=False)
+    pairs = []
+    paired = [False] * len(players)
+    ranked_players = rank_players(players)
+
+    while False in paired:
+        for i, r_player in enumerate(ranked_players):
+            if paired[i]:
+                continue
+            for j in range(i + 1, len(ranked_players)):
+                if not paired[j] and paired[j] not in r_player.get_rivals(tournament):
+                    pairs.append((r_player, ranked_players[j]))
+                    paired[i] = paired[j] = True
+                    break
 
     matches = [
-        TournamentMatch(player1=players[i], player2=players[i + n_pairs], n_round=n_round)
-        for i in range(n_pairs)
+        TournamentMatch(player1=pairs[i][0], player2=pairs[i][1], n_round=n_round, tournament=tournament)
+        for i in range(len(pairs))
     ]
     TournamentMatch.objects.bulk_create(matches)
+
 
 def get_match_results():
     """Fetches all possible match result choices."""
@@ -53,6 +66,7 @@ def get_match_results():
 
 
 def process_round_results(request):
+    tournament = get_or_create_tournament()
     try:
         data = json.loads(request.body)
         round_number = data.get("roundNumber")
@@ -61,7 +75,7 @@ def process_round_results(request):
         if not round_number or not match_results:
             return {"status": "error", "message": "Missing round number or formData", "status_code": 400}
 
-        players = {p.name: p for p in get_players()}
+        players = {p.player.name: p for p in get_players(tournament)}
         for match in match_results:
             player1 = players.get(match["player1Name"])
             player2 = players.get(match["player2Name"])
@@ -79,14 +93,28 @@ def process_round_results(request):
         return {"status": "error", "message": "Invalid JSON Body", "status_code": 400}
 
 def get_round_data(n_round):
-    players = get_players(n_round)
+    tournament = get_or_create_tournament()
+    players = get_players(tournament, n_round)
     ranked_players = [player.serialize() for player in rank_players(players)]
     option_results = get_match_results()
 
-    matches = TournamentMatch.objects.filter(n_round=n_round, active=True)
+    matches = TournamentMatch.objects.filter(n_round=n_round, tournament=tournament, active=True)
     if not matches.exists():
-        create_matches(players, n_round)
-        matches = TournamentMatch.objects.filter(n_round=n_round, active=True)
+        create_matches(players, n_round, tournament)
+        matches = TournamentMatch.objects.filter(n_round=n_round, tournament=tournament, active=True)
+
 
     match_data = [match.serialize() for match in matches]
     return match_data, ranked_players, option_results
+
+
+def get_or_create_tournament(setup=False):
+    """Fetches the active tournament or creates one if none exists."""
+    if setup:
+        Tournament.objects.filter(active=True).update(active=False)
+    tournament, created = Tournament.objects.get_or_create(active=True)
+    return tournament
+
+def end_tournament():
+    """Deactivates the active tournament."""
+    Tournament.objects.filter(active=True).update(active=False)

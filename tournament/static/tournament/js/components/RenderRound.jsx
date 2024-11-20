@@ -1,25 +1,10 @@
 const RenderRound = ({roundNumber, setRoundNumber}) => {
     const [tournamentMatches, setTournamentMatches] = React.useState([]);
     const [rankedPlayers, setRankedPlayers] = React.useState([]);
-    const [possibleResults, setPossibleResults] = React.useState(null);
+    const [possibleResults, setPossibleResults] = React.useState([]);
     const [formData, setFormData] = React.useState([]);
     const [error, setError] = React.useState(false);
 
-    React.useEffect(() => {
-        const fetchPossibleResults = async () => {
-            try {
-                const response = await fetch("/tournament/get_possible_results");
-                if (!response.ok) throw new Error("Error fetching possible results");
-                const data = await response.json();
-                setPossibleResults(data);
-            } catch (error) {
-                console.error("Error fetching options: ", error);
-            }
-        };
-
-        if (possibleResults === null) fetchPossibleResults();
-
-    }, []);
 
     React.useEffect(() => {
         const fetchTournamentMatches = async () => {
@@ -29,6 +14,7 @@ const RenderRound = ({roundNumber, setRoundNumber}) => {
                 const data = await response.json();
                 setTournamentMatches(data["match_data"]);
                 setRankedPlayers(data["ranked_players"]);
+                setPossibleResults(data["option_results"])
 
                 const initialFormData = data["match_data"].map((match) => ({
                     player1Name: match.player1.name,
