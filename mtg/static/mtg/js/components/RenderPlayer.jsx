@@ -1,4 +1,4 @@
-const RenderPlayer = ({ selectedPlayer, setSelectedDeck, loggedInUserId }) => {
+const RenderPlayer = ({ selectedPlayer, setSelectedDeck, loggedInUser }) => {
     const [player, setPlayer] = React.useState(null);
     const [decksPlayer, setDecksPlayer] = React.useState([]);
     const [showForm, setShowForm] = React.useState(false);
@@ -7,8 +7,8 @@ const RenderPlayer = ({ selectedPlayer, setSelectedDeck, loggedInUserId }) => {
     console.log(`Render Player ${selectedPlayer}`)
 
     const playerId = selectedPlayer && selectedPlayer.id;
-    const isCurrentUser = loggedInUserId === playerId;
-    console.log(`PLAYER ID: ${playerId}`)
+    const isCurrentUser = loggedInUser.id === playerId;
+    console.log(`PLAYER ID: #${playerId} `)
 
     React.useEffect(() => {
         if (playerId) {

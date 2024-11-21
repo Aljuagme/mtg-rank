@@ -2,18 +2,21 @@ function App() {
     const [currentView, setCurrentView] = React.useState("home");
     const [selectedDeck, setSelectedDeck] = React.useState(null);
     const [selectedPlayer, setSelectedPlayer] = React.useState(null);
-    const [loggedInUserId, setLoggedInUserId] = React.useState(null);
+    const [loggedInUser, setLoggedInUser] = React.useState([]);
 
     // Fetch logged-in user ID on load
     React.useEffect(() => {
         fetch(`/get_logged_in_user`)
             .then(response => response.json())
-            .then(data => setLoggedInUserId(data.id)
+            .then(data => setLoggedInUser({
+                id: data["id"],
+                name: data["name"]
+                })
             )
             .catch(error => console.error("Error fetching logged-in user ID:", error));
     }, []);
 
-    console.log(`Logged in user: #${loggedInUserId}`)
+    console.log(`Logged in user: #${loggedInUser.name}`)
 
     const handleView = (view) => {
         setCurrentView(view)
@@ -21,14 +24,14 @@ function App() {
         console.log(view)
 
         // If "My Stats" is clicked, use logged-in user ID
-        setSelectedPlayer(view === "stats" ? { id: loggedInUserId } : null);
+        setSelectedPlayer(view === "stats" ? { id: loggedInUser.id } : null);
     }
     return (
         <div>
             {/* NavBar */}
             <RenderNavbar
                 handleView={handleView}
-                loggedInUserId={loggedInUserId}
+                loggedInUser={loggedInUser}
             />
             <hr />
 
@@ -43,7 +46,7 @@ function App() {
                 <RenderPlayer
                     selectedPlayer={selectedPlayer}
                     setSelectedDeck={setSelectedDeck}
-                    loggedInUserId={loggedInUserId}
+                    loggedInUser={loggedInUser}
                 />
             ) : currentView === "decks" ? (
                 <RenderBestDecks

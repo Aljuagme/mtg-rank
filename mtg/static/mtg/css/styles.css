@@ -70,12 +70,20 @@ body.index-page {
 
 
 .out {
-    position: absolute;
+    position: static;
     right: 10px;
     text-align: center;
     padding: 15px;
     font-size: 20px;
     font-weight: bold;
+}
+
+.user-name {
+    margin: 0 auto;
+    font-size: 36px;
+    font-weight: bold;
+    color: darkslategrey;
+    text-align: center;
 }
 
 /* Table */
