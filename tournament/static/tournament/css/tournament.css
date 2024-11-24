@@ -217,3 +217,13 @@ h1 {
     color: red;
     margin: auto;
 }
+
+.timer-style {
+    position: absolute;
+    color: white;
+    font-size: 8rem;
+    font-weight: bold;
+    text-align: center;
+    right: .5em;
+    bottom: 2em;
+}

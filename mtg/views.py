@@ -10,6 +10,7 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 
 from .models import User, Deck, Match
+from .services import process_login
 
 
 # Create your views here.
@@ -24,16 +25,7 @@ def index(request):
 
 def login_view(request):
     if request.method == "POST":
-        name_or_email = request.POST["name_or_email"]
-        password = request.POST["password"]
-
-        try:
-            user = User.objects.get(username=name_or_email.capitalize())
-        except User.DoesNotExist:
-            try:
-                user = User.objects.get(email=name_or_email)
-            except User.DoesNotExist:
-                user = None
+        user, password = process_login(request)
 
         if user:
             user = authenticate(request, username=user.username, password=password)

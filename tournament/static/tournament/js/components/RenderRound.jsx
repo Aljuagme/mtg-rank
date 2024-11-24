@@ -5,6 +5,24 @@ const RenderRound = ({roundNumber, setRoundNumber}) => {
     const [formData, setFormData] = React.useState([]);
     const [error, setError] = React.useState(false);
 
+    //Timer
+    const [seconds, setSeconds] = React.useState(0);
+    const [minutes, setMinutes] = React.useState(45);
+
+    React.useEffect(() => {
+        const interval = setInterval(() => {
+            setSeconds((prevSec) => {
+                if (prevSec === 0) {
+                    setMinutes((prevMin) => prevMin - 1);
+                    return 59;
+                }
+                return prevSec - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, []);
+
 
     React.useEffect(() => {
         const fetchTournamentMatches = async () => {
@@ -70,6 +88,8 @@ const RenderRound = ({roundNumber, setRoundNumber}) => {
                     body: JSON.stringify({roundNumber, formData})
                 });
                 setRoundNumber(roundNumber+1)
+                setMinutes(45)
+                setSeconds(0)
             } catch (error) {
                 console.error("Error submitting round data", error)
             }
@@ -106,11 +126,11 @@ const RenderRound = ({roundNumber, setRoundNumber}) => {
                                         onChange={(e) => handleResultChange(index, e.target.value)}
                                     >
                                         {possibleResults.length > 0 &&
-                                                possibleResults.map((result) => (
-                                                    <option key={result.id} value={result.id}>
-                                                        {result.label}
-                                                    </option>
-                                                ))}
+                                            possibleResults.map((result) => (
+                                                <option key={result.id} value={result.id}>
+                                                    {result.label}
+                                                </option>
+                                            ))}
                                     </select>
                                 </td>
                                 <td>{match.player2.name}</td>
@@ -152,6 +172,9 @@ const RenderRound = ({roundNumber, setRoundNumber}) => {
                     ))}
                     </tbody>
                 </table>
+            </div>
+            <div className="timer-style" style={{color: minutes < 10 ? "red" : "white",}}>
+                <span>{String(minutes).padStart(2, "0")}</span>:<span>{String(seconds).padStart(2, "0")}</span>
             </div>
         </div>
     );
