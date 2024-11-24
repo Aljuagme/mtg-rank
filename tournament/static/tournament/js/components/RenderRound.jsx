@@ -26,25 +26,27 @@ const RenderRound = ({roundNumber, setRoundNumber}) => {
 
     React.useEffect(() => {
         const fetchTournamentMatches = async () => {
-            try {
-                const response = await fetch(`/tournament/round/${roundNumber}`);
-                if (!response.ok) throw new Error(`Could not pair rivals for Round ${roundNumber}`);
-                const data = await response.json();
-                setTournamentMatches(data["match_data"]);
-                setRankedPlayers(data["ranked_players"]);
-                setPossibleResults(data["option_results"])
+            if (roundNumber < 4) {
+                try {
+                    const response = await fetch(`/tournament/round/${roundNumber}`);
+                    if (!response.ok) throw new Error(`Could not pair rivals for Round ${roundNumber}`);
+                    const data = await response.json();
+                    setTournamentMatches(data["match_data"]);
+                    setRankedPlayers(data["ranked_players"]);
+                    setPossibleResults(data["option_results"])
 
-                const initialFormData = data["match_data"].map((match) => ({
-                    player1Name: match.player1.name,
-                    player2Name: match.player2.name,
-                    result: "AW",
-                    verified: false,
-                }));
-                setFormData(initialFormData);
-
-            } catch (error) {
+                    const initialFormData = data["match_data"].map((match) => ({
+                        player1Name: match.player1.name,
+                        player2Name: match.player2.name,
+                        result: "AW",
+                        verified: false,
+                    }));
+                    setFormData(initialFormData);
+                } catch (error) {
                 console.error(`There was a problem while setting matches in Round ${roundNumber}`, error);
             }
+            }
+
         };
         fetchTournamentMatches();
     }, [roundNumber]);
@@ -88,7 +90,12 @@ const RenderRound = ({roundNumber, setRoundNumber}) => {
                     body: JSON.stringify({roundNumber, formData})
                 });
                 setRoundNumber(roundNumber+1)
-                setMinutes(45)
+                if (roundNumber > 3) {
+                    setMinutes(0)
+                } else {
+                    setMinutes(45)
+                }
+
                 setSeconds(0)
             } catch (error) {
                 console.error("Error submitting round data", error)
@@ -101,55 +108,76 @@ const RenderRound = ({roundNumber, setRoundNumber}) => {
 
     return (
         <div className="page-container">
-            <form onSubmit={handleSubmitRound}>
-                <div className="round-container">
-                    <h1>Round {roundNumber}</h1>
-                    {tournamentMatches.map((match, index) => (
-                        <table key={index} className="match-table">
-                            <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Player 1</th>
-                                <th scope="col">Result</th>
-                                <th scope="col">Player 2</th>
-                                <th scope="col">Verify</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td scope="row">{index + 1}</td>
-                                <td>{match.player1.name}</td>
-                                <td>
-                                    <select
-                                        name="result"
-                                        value={formData[index] ? formData[index].result : "AW"}
-                                        onChange={(e) => handleResultChange(index, e.target.value)}
-                                    >
-                                        {possibleResults.length > 0 &&
-                                            possibleResults.map((result) => (
-                                                <option key={result.id} value={result.id}>
-                                                    {result.label}
-                                                </option>
-                                            ))}
-                                    </select>
-                                </td>
-                                <td>{match.player2.name}</td>
-                                <td>
-                                    <input
-                                        type="radio"
-                                        checked={formData[index] ? formData[index].verified : false}
-                                        onChange={() => handleVerifyChange(index)}
-                                    />
-                                </td>
-                            </tr>
-                            </tbody>
+            {roundNumber < 4 ? (
+                <form onSubmit={handleSubmitRound}>
+                    <div className="round-container">
+                        <h1>Round {roundNumber}</h1>
+                        {tournamentMatches.map((match, index) => (
+                            <table key={index} className="match-table">
+                                <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Player 1</th>
+                                    <th scope="col">Result</th>
+                                    <th scope="col">Player 2</th>
+                                    <th scope="col">Verify</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td scope="row">{index + 1}</td>
+                                    <td>{match.player1.name}</td>
+                                    <td>
+                                        <select
+                                            name="result"
+                                            value={formData[index] ? formData[index].result : "AW"}
+                                            onChange={(e) => handleResultChange(index, e.target.value)}
+                                        >
+                                            {possibleResults.length > 0 &&
+                                                possibleResults.map((result) => (
+                                                    <option key={result.id} value={result.id}>
+                                                        {result.label}
+                                                    </option>
+                                                ))}
+                                        </select>
+                                    </td>
+                                    <td>{match.player2.name}</td>
+                                    <td>
+                                        <input
+                                            type="radio"
+                                            checked={formData[index] ? formData[index].verified : false}
+                                            onChange={() => handleVerifyChange(index)}
+                                        />
+                                    </td>
+                                </tr>
+                                </tbody>
 
-                        </table>
-                    ))}
-                    {error && <p className="error-message">Please verify all matches before submitting.</p>}
-                    <button type="submit" className="submit-btn">Finish Round {roundNumber}</button>
+                            </table>
+                        ))}
+                        {error && <p className="error-message">Please verify all matches before submitting.</p>}
+                        <button type="submit" className="submit-btn">Finish Round {roundNumber}</button>
+                    </div>
+                </form>
+            ) : (
+                <div className="podium-container">
+                    <h1 className="podium-title">Congratulations to the Top Players!</h1>
+                    <div className="podium">
+                        <div className="podium-2">
+                            <div className="podium-box">{rankedPlayers[1].name || "TBD"}</div>
+                            <p>2nd</p>
+                        </div>
+                        <div className="podium-1">
+                            <div className="podium-box">{rankedPlayers[0].name || "TBD"}</div>
+                            <p>1st</p>
+                        </div>
+                        <div className="podium-3">
+                            <div className="podium-box">{rankedPlayers[2].name || "TBD"}</div>
+                            <p>3rd</p>
+                        </div>
+                    </div>
                 </div>
-            </form>
+            )}
+
 
             <div className="ranked-table-container">
                 <table className="ranked-table">

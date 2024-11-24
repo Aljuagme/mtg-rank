@@ -227,3 +227,75 @@ h1 {
     right: .5em;
     bottom: 2em;
 }
+
+.podium-container {
+    text-align: center;
+    margin-top: 50px;
+}
+
+.podium-title {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #ffd700; /* Gold color for the title */
+    margin-bottom: 20px;
+}
+
+.podium {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 20px;
+    height: 200px; /* Adjust height to fit the podium design */
+}
+
+.podium-1,
+.podium-2,
+.podium-3 {
+    text-align: center;
+}
+
+.podium-1 {
+    order: 2;
+    position: relative;
+    bottom: 40px; /* Higher position for 1st place */
+}
+
+.podium-2 {
+    order: 1;
+    position: relative;
+    bottom: 20px; /* Lower than 1st but higher than 3rd */
+}
+
+.podium-3 {
+    order: 3;
+    position: relative;
+    bottom: 10px; /* Slightly lower for 3rd place */
+}
+
+.podium-box {
+    width: 100px;
+    height: 100px;
+    background: #ffd700; /* Gold for 1st place */
+    color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border-radius: 10px;
+    margin-bottom: 5px;
+}
+
+.podium-2 .podium-box {
+    background: #c0c0c0; /* Silver for 2nd place */
+}
+
+.podium-3 .podium-box {
+    background: #cd7f32; /* Bronze for 3rd place */
+}
+
+.podium p {
+    font-size: 1rem;
+    font-weight: bold;
+    color: white;
+}

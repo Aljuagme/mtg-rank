@@ -33,3 +33,5 @@ User can change background image
 podium con copas. Despues cada usuario tiene una estrella a lo mundial.
 
 IF same points but I beat a player even though s/he has more K/D, I should be earlier on rank.
+
+Para ronda3, los resultados no se muestran de la ronda2, y el reloj no para tampoco.
